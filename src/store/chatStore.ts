@@ -22,7 +22,7 @@ interface ChatStore {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  apiKey: '',
+  apiKey: localStorage.getItem('OPENROUTER_API_KEY') || '',
   selectedModel: 'openai/gpt-4o-mini',
   systemPrompt: 'You are D-Bolt-AI, an expert AI coding assistant. You help developers write, debug, and understand code. Provide clear, well-commented code examples when helpful. Format code in appropriate code blocks with language identifiers.',
   temperature: 0.7,
@@ -106,7 +106,13 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   updateSettings: (settings) => {
-    set(state => ({ settings: { ...state.settings, ...settings } }))
+    set(state => {
+      const newSettings = { ...state.settings, ...settings }
+      if (settings.apiKey !== undefined) {
+        localStorage.setItem('OPENROUTER_API_KEY', settings.apiKey)
+      }
+      return { settings: newSettings }
+    })
   },
 
   setSettingsOpen: (open) => {

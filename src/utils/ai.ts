@@ -23,7 +23,9 @@ export async function* streamCompletion(
   settings: AppSettings,
   signal?: AbortSignal
 ): AsyncGenerator<string> {
-  if (!settings.apiKey) {
+  const apiKey = settings.apiKey?.trim()
+
+  if (!apiKey) {
     throw new Error('No API key configured. Please add your OpenRouter API key in Settings.')
   }
 
@@ -35,7 +37,7 @@ export async function* streamCompletion(
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${settings.apiKey}`,
+      'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': window.location.origin,
       'X-Title': 'D-Bolt-AI',
