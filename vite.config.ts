@@ -4,13 +4,20 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true, // allow external hosts (Replit preview)
     port: 5000,
     strictPort: true,
-    allowedHosts: 'all',
+
+    // Allow Replit preview domains
+    allowedHosts: [
+      '.replit.dev',
+      '.replit.app',
+      'localhost'
+    ],
+
     hmr: {
-      clientPort: 443,
       protocol: 'wss',
-    },
-  },
+      clientPort: 443
+    }
+  }
 })
