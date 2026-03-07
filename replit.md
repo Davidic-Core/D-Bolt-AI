@@ -1,62 +1,39 @@
-# D-Bolt-AI
+# Replit Development Guide: D-Bolt-AI
 
-An AI-powered coding assistant web application built with React, TypeScript, and Vite.
+This document provides specific instructions for developing and running D-Bolt-AI within the Replit environment.
 
-## Overview
+## 🚀 Quick Start on Replit
 
-D-Bolt-AI is a chat interface that connects to multiple AI models via the OpenRouter API. Users can have conversations with AI assistants focused on coding help, get syntax-highlighted code responses, and configure their preferred model and settings.
+1. **Environment Setup**: Replit automatically detects the `package.json` and suggests installing dependencies. If not, run:
+   ```bash
+   npm install
+   ```
+2. **Run Application**: Click the "Run" button or execute:
+   ```bash
+   npm run dev
+   ```
+   The app will be available on port `5000`.
 
-## Architecture
+## 🔑 API Configuration
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **State Management**: Zustand
-- **AI API**: OpenRouter (supports GPT-4, Claude, Gemini, Llama, DeepSeek, and more)
-- **Markdown Rendering**: react-markdown with remark-gfm
-- **Syntax Highlighting**: react-syntax-highlighter (Prism, vscDarkPlus theme)
-- **Icons**: react-icons (Feather Icons)
+D-Bolt-AI uses **OpenRouter** for AI capabilities. 
 
-## Project Structure
+- **Storage**: For security and convenience, your API key is stored in the browser's `localStorage`.
+- **Setup**: Open the **Settings** modal in the web preview and paste your key.
+- **Persistence**: The key persists across browser sessions but is never stored on the Replit server itself.
 
-```
-src/
-  components/
-    Sidebar.tsx       - Chat session list and navigation
-    ChatArea.tsx      - Main chat view with message streaming
-    ChatMessage.tsx   - Individual message with markdown/code rendering
-    ChatInput.tsx     - Text input with send/stop controls
-    Settings.tsx      - Settings modal (API key, model, temperature, etc.)
-  store/
-    chatStore.ts      - Zustand store for sessions, messages, settings
-  types/
-    index.ts          - TypeScript types (Message, ChatSession, AppSettings)
-  utils/
-    ai.ts             - OpenRouter streaming API integration, model list
-  App.tsx             - Root component with layout
-  App.css             - All component styles
-  index.css           - Global styles and CSS variables
-  main.tsx            - React entry point
-```
+## 🌿 Branch & Deployment Strategy
 
-## Running
+- **Main Branch**: This is the production-ready branch. Do not commit directly to `main`.
+- **Feature Branches**: Create a new branch for every task. Use the Replit Git pane to manage branches.
+- **Publishing**: Use the **Deploy** tab to publish the static build. Replit is configured to build from `npm run build` and serve from the `dist` directory.
 
-```bash
-npm run dev    # Dev server on port 5000
-npm run build  # Production build to dist/
-```
+## 🛠️ Development Tips
 
-## Configuration
+- **HMR**: Hot Module Replacement is configured to work through the Replit proxy. If styles aren't updating, check `vite.config.ts`.
+- **Testing**: Test AI streaming by ensuring you have a valid balance on your OpenRouter account.
+- **Dependencies**: Keep the project healthy by occasionally running `npm update` to get the latest security patches.
 
-- Dev server: port 5000, host 0.0.0.0
-- HMR: WSS on clientPort 443 (Replit proxy compatible)
-- Deployment: Static site via `npm run build` → `dist/`
+## 📝 Maintenance
 
-## Features
-
-- Multiple AI model support via OpenRouter
-- Streaming responses with real-time typing effect
-- Syntax-highlighted code blocks with copy button
-- Multiple chat sessions with sidebar navigation
-- Configurable system prompt, temperature, max tokens
-- Dark theme throughout
-- Stop generation button
-- Responsive layout with collapsible sidebar
+Update this `REPLIT.md` file whenever you make significant changes to the environment configuration or deployment workflow.
