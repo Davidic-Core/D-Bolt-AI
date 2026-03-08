@@ -109,13 +109,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       updateSettings: (settings) => {
-        set(state => {
-          const newSettings = { ...state.settings, ...settings }
-          if (settings.apiKey !== undefined) {
-            localStorage.setItem('OPENROUTER_API_KEY', settings.apiKey)
-          }
-          return { settings: newSettings }
-        })
+        set(state => ({ settings: { ...state.settings, ...settings } }))
       },
 
       setSettingsOpen: (open) => {
