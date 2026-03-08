@@ -9,7 +9,22 @@ D-Bolt-AI is a high-performance, intelligent coding assistant powered by the Ope
 - **Smart Context**: Built-in system prompts optimized for expert-level coding assistance.  
 - **Code Intelligence**: Beautiful syntax highlighting and one-click code copying.  
 - **Persistent Sessions**: Your API keys and chat history stay with you across browser refreshes.  
+- **Persistent Settings**: All configuration is automatically saved and restored.
 - **Responsive Design**: Optimized for both focused coding and quick mobile lookups.  
+
+## 🤖 Supported AI Models
+
+D-Bolt-AI currently supports the following AI models through OpenRouter:
+
+### OpenAI
+- **GPT-4o** - Most capable OpenAI model with advanced reasoning
+- **GPT-4o Mini** - Fast and affordable model for quick queries
+
+### Anthropic
+- **Claude 3.5 Sonnet** - Excellent for detailed coding assistance and explanations
+- **Claude 3 Haiku** - Fast and efficient for quick responses
+
+> **Note**: More models will be added as compatibility with OpenRouter is verified.
 
 ## 🛠️ Tech Stack
 
@@ -69,6 +84,6 @@ Try asking D-Bolt-AI:
 
 ## ⚠️ Known Issues & Notes
 
-- **API Key**: If you see "Missing Authentication Header", ensure your key is saved in the Settings panel.
-- **Model Availability**: Some Meta-Llama free models may experience high latency during peak times.
+- **API Key**: If you see "Missing Authentication Header", ensure your key is saved in the Settings panel and try again.
+- **Session Persistence**: Chat history is stored locally in your browser. Clearing browser data will reset conversations.
   
