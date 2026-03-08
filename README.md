@@ -1,24 +1,24 @@
 # D-Bolt-AI
 
-D-Bolt-AI is a high-performance, intelligent coding assistant powered by the OpenRouter API. It provides a sleek, modern interface for developers to interact with world-class AI models like GPT-4, Claude 3.5 Sonnet, and Llama 3.1.
+D-Bolt-AI is a high-performance, intelligent coding assistant powered by the OpenRouter API. It provides a sleek, modern interface for developers to interact with world-class AI models like GPT-4o, GPT-4o Mini, Claude 3.5 Sonnet, and Claude 3 Haiku.
 
 ## 🚀 Features
 
-- **Multi-Model Support**: Switch between OpenAI, Anthropic, Google, and Meta models instantly.
-- **Real-Time Streaming**: Experience ultra-fast, word-by-word response streaming.
-- **Smart Context**: Built-in system prompts optimized for expert-level coding assistance.
-- **Code Intelligence**: Beautiful syntax highlighting and one-click code copying.
-- **Persistent Sessions**: Your API keys and chat history stay with you across browser refreshes.
-- **Responsive Design**: Optimized for both focused coding and quick mobile lookups.
+- **Multi-Model Support**: Switch between GPT-4o, GPT-4o Mini, Claude 3.5 Sonnet, and Claude 3 Haiku instantly.  
+- **Real-Time Streaming**: Experience ultra-fast, word-by-word response streaming.  
+- **Smart Context**: Built-in system prompts optimized for expert-level coding assistance.  
+- **Code Intelligence**: Beautiful syntax highlighting and one-click code copying.  
+- **Persistent Sessions**: Your API keys and chat history stay with you across browser refreshes.  
+- **Responsive Design**: Optimized for both focused coding and quick mobile lookups.  
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **State Management**: Zustand (with localStorage persistence)
-- **Styling**: Custom CSS with CSS Variables for easy theming
-- **AI Integration**: OpenRouter API
-- **Utilities**: Axios, React Markdown, Framer Motion
+- **Frontend**: React 18 with TypeScript  
+- **Build Tool**: Vite  
+- **State Management**: Zustand (with localStorage persistence)  
+- **Styling**: Custom CSS with CSS Variables for easy theming  
+- **AI Integration**: OpenRouter API  
+- **Utilities**: Axios, React Markdown, Framer Motion  
 
 ## 📂 Project Structure
 
@@ -30,7 +30,7 @@ src/
 ├── utils/            # API integration and helper functions (ai.ts)
 ├── App.tsx           # Main application layout
 └── main.tsx          # Application entry point
-```
+
 
 ## ⚙️ Setup & Installation
 
@@ -71,3 +71,4 @@ Try asking D-Bolt-AI:
 
 - **API Key**: If you see "Missing Authentication Header", ensure your key is saved in the Settings panel.
 - **Model Availability**: Some Meta-Llama free models may experience high latency during peak times.
+  
