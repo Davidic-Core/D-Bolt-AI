@@ -4,11 +4,13 @@ import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Message } from '../types'
-import { FiUser, FiCopy, FiCheck } from 'react-icons/fi'
+import { FiUser, FiCopy, FiCheck, FiRotateCw } from 'react-icons/fi'
 import { FiZap } from 'react-icons/fi'
 
 interface Props {
   message: Message
+  onCopyMessage?: () => void
+  onRegenerateMessage?: () => void
 }
 
 function CodeBlock({ language, value }: { language: string; value: string }) {
@@ -47,8 +49,16 @@ function CodeBlock({ language, value }: { language: string; value: string }) {
   )
 }
 
-export default function ChatMessage({ message }: Props) {
+export default function ChatMessage({ message, onCopyMessage, onRegenerateMessage }: Props) {
   const isUser = message.role === 'user'
+  const [copied, setCopied] = React.useState(false)
+
+  const handleCopyMessage = async () => {
+    await navigator.clipboard.writeText(message.content)
+    setCopied(true)
+    onCopyMessage?.()
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className={`message ${isUser ? 'message-user' : 'message-assistant'}`}>
@@ -88,6 +98,26 @@ export default function ChatMessage({ message }: Props) {
             </ReactMarkdown>
             {message.isStreaming && <span className="cursor-blink">▋</span>}
           </div>
+        )}
+      </div>
+      <div className="message-actions">
+        <button
+          className="message-action-btn"
+          onClick={handleCopyMessage}
+          title="Copy message"
+          aria-label="Copy message"
+        >
+          {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
+        </button>
+        {!isUser && onRegenerateMessage && (
+          <button
+            className="message-action-btn"
+            onClick={onRegenerateMessage}
+            title="Regenerate response"
+            aria-label="Regenerate response"
+          >
+            <FiRotateCw size={16} />
+          </button>
         )}
       </div>
     </div>

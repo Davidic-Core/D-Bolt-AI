@@ -96,6 +96,46 @@ export default function ChatArea() {
     abortRef.current?.abort()
   }
 
+  const handleRegenerateMessage = async (messageId: string) => {
+    if (!session || activeSessionId === null) return
+
+    setError(null)
+    const messageIndex = session.messages.findIndex(m => m.id === messageId)
+    if (messageIndex === -1 || messageIndex === 0) return
+
+    const userMessage = session.messages[messageIndex - 1]
+    if (userMessage.role !== 'user') return
+
+    const messagesBeforeUser = session.messages.slice(0, messageIndex - 1)
+    const allMessages = [...messagesBeforeUser, userMessage]
+
+    abortRef.current = new AbortController()
+    setIsStreaming(true)
+
+    updateMessage(activeSessionId, messageId, '', true)
+
+    let fullContent = ''
+
+    try {
+      for await (const chunk of streamCompletion(allMessages, settings, abortRef.current.signal)) {
+        fullContent += chunk
+        updateMessage(activeSessionId, messageId, fullContent, true)
+      }
+      updateMessage(activeSessionId, messageId, fullContent, false)
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        updateMessage(activeSessionId, messageId, fullContent || '*(stopped)*', false)
+      } else {
+        const msg = err instanceof Error ? err.message : 'Unknown error occurred'
+        setError(msg)
+        updateMessage(activeSessionId, messageId, `*(Error: ${msg})*`, false)
+      }
+    } finally {
+      setIsStreaming(false)
+      abortRef.current = null
+    }
+  }
+
   if (!session) {
     return (
       <div className="chat-empty">
@@ -139,7 +179,13 @@ export default function ChatArea() {
           </div>
         ) : (
           session.messages.map(message => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage
+              key={message.id}
+              message={message}
+              onRegenerateMessage={
+                message.role === 'assistant' ? () => handleRegenerateMessage(message.id) : undefined
+              }
+            />
           ))
         )}
         {error && (

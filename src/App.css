@@ -343,10 +343,57 @@
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
+  group: true;
+}
+
+.message:hover .message-actions {
+  opacity: 1;
 }
 
 .message-user {
   flex-direction: row-reverse;
+}
+
+.message-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  position: absolute;
+  right: -50px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.message-user .message-actions {
+  right: auto;
+  left: -50px;
+}
+
+.message-action-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.message-action-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.message-action-btn:active {
+  background: var(--accent-hover);
 }
 
 .avatar {
