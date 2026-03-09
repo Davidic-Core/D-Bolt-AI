@@ -4,13 +4,14 @@ import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Message } from '../types'
-import { FiUser, FiCopy, FiCheck, FiRotateCw } from 'react-icons/fi'
+import { FiUser, FiCopy, FiCheck, FiRotateCw, FiEdit2, FiSave, FiX } from 'react-icons/fi'
 import { FiZap } from 'react-icons/fi'
 
 interface Props {
   message: Message
   onCopyMessage?: () => void
   onRegenerateMessage?: () => void
+  onEditMessage?: (newContent: string) => void
 }
 
 function CodeBlock({ language, value }: { language: string; value: string }) {
@@ -49,15 +50,29 @@ function CodeBlock({ language, value }: { language: string; value: string }) {
   )
 }
 
-export default function ChatMessage({ message, onCopyMessage, onRegenerateMessage }: Props) {
+export default function ChatMessage({ message, onCopyMessage, onRegenerateMessage, onEditMessage }: Props) {
   const isUser = message.role === 'user'
   const [copied, setCopied] = React.useState(false)
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [editContent, setEditContent] = React.useState(message.content)
 
   const handleCopyMessage = async () => {
     await navigator.clipboard.writeText(message.content)
     setCopied(true)
     onCopyMessage?.()
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleSaveEdit = () => {
+    if (editContent.trim()) {
+      onEditMessage?.(editContent)
+      setIsEditing(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditContent(message.content)
+    setIsEditing(false)
   }
 
   return (
@@ -75,7 +90,26 @@ export default function ChatMessage({ message, onCopyMessage, onRegenerateMessag
       </div>
       <div className="message-content">
         {isUser ? (
-          <p className="message-text">{message.content}</p>
+          isEditing ? (
+            <div className="edit-mode">
+              <textarea
+                className="edit-textarea"
+                value={editContent}
+                onChange={e => setEditContent(e.target.value)}
+                autoFocus
+              />
+              <div className="edit-actions">
+                <button className="edit-btn save" onClick={handleSaveEdit}>
+                  <FiSave size={14} /> Save
+                </button>
+                <button className="edit-btn cancel" onClick={handleCancelEdit}>
+                  <FiX size={14} /> Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="message-text">{message.content}</p>
+          )
         ) : (
           <div className="message-markdown">
             <ReactMarkdown
@@ -100,26 +134,38 @@ export default function ChatMessage({ message, onCopyMessage, onRegenerateMessag
           </div>
         )}
       </div>
-      <div className="message-actions">
-        <button
-          className="message-action-btn"
-          onClick={handleCopyMessage}
-          title="Copy message"
-          aria-label="Copy message"
-        >
-          {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
-        </button>
-        {!isUser && onRegenerateMessage && (
+      {!isEditing && (
+        <div className="message-actions">
           <button
             className="message-action-btn"
-            onClick={onRegenerateMessage}
-            title="Regenerate response"
-            aria-label="Regenerate response"
+            onClick={handleCopyMessage}
+            title="Copy message"
+            aria-label="Copy message"
           >
-            <FiRotateCw size={16} />
+            {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
           </button>
-        )}
-      </div>
+          {isUser && onEditMessage && (
+            <button
+              className="message-action-btn"
+              onClick={() => setIsEditing(true)}
+              title="Edit message"
+              aria-label="Edit message"
+            >
+              <FiEdit2 size={16} />
+            </button>
+          )}
+          {!isUser && onRegenerateMessage && (
+            <button
+              className="message-action-btn"
+              onClick={onRegenerateMessage}
+              title="Regenerate response"
+              aria-label="Regenerate response"
+            >
+              <FiRotateCw size={16} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
