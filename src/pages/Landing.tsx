@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiZap, FiCode, FiSave, FiGrid } from 'react-icons/fi'
 import './Landing.css'
 
 export default function Landing() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = 'D-Bolt-AI — AI Chat Assistant'
+  }, [])
 
   return (
     <div className="landing">

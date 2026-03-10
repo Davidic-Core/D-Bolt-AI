@@ -1,16 +1,22 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import ChatArea from './components/ChatArea'
 import Settings from './components/Settings'
-import Landing from './pages/Landing'
+import ErrorBoundary from './components/ErrorBoundary'
 import AppLayout from './layouts/AppLayout'
 import { useChatStore } from './store/chatStore'
 import './App.css'
 
+const Landing = lazy(() => import('./pages/Landing'))
+
 function ChatPage() {
   const { isSettingsOpen, isSidebarOpen, setSidebarOpen } = useChatStore()
+
+  React.useEffect(() => {
+    document.title = 'Chat • D-Bolt-AI'
+  }, [])
 
   return (
     <div className="app">
@@ -41,16 +47,27 @@ function ChatPage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <div className="app-wrapper">
-        <Navbar />
-        <div className="app-content">
-          <Routes>
-            <Route path="/" element={<AppLayout><Landing /></AppLayout>} />
-            <Route path="/chat" element={<ChatPage />} />
-          </Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <div className="app-wrapper">
+          <Navbar />
+          <div className="app-content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Suspense fallback={<div className="loading-fallback">Loading...</div>}>
+                    <AppLayout>
+                      <Landing />
+                    </AppLayout>
+                  </Suspense>
+                }
+              />
+              <Route path="/chat" element={<ChatPage />} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
