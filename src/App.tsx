@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar'
 import ChatArea from './components/ChatArea'
 import Settings from './components/Settings'
 import Landing from './pages/Landing'
+import AppLayout from './layouts/AppLayout'
 import { useChatStore } from './store/chatStore'
 import './App.css'
 
@@ -45,7 +46,7 @@ export default function App() {
         <Navbar />
         <div className="app-content">
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<AppLayout><Landing /></AppLayout>} />
             <Route path="/chat" element={<ChatPage />} />
           </Routes>
         </div>
