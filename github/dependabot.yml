@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"              # Update frontend dependencies
+    directory: "/"                        # Location of package.json
+    schedule:
+      interval: "daily"                   # Check for updates every day
+    target-branch: "Replit-agents"       # Dependabot will create PRs to this branch first
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    ignore: []
+
+  - package-ecosystem: "github-actions"  # Update GitHub Actions workflows
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "Replit-agents"
+    commit-message:
+      prefix: "chore(actions)"
+    open-pull-requests-limit: 5
