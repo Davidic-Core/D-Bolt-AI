@@ -1,11 +1,14 @@
 import React from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import ChatArea from './components/ChatArea'
 import Settings from './components/Settings'
+import Landing from './pages/Landing'
 import { useChatStore } from './store/chatStore'
 import './App.css'
 
-export default function App() {
+function ChatPage() {
   const { isSettingsOpen, isSidebarOpen, setSidebarOpen } = useChatStore()
 
   return (
@@ -32,5 +35,21 @@ export default function App() {
       </div>
       {isSettingsOpen && <Settings />}
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="app-wrapper">
+        <Navbar />
+        <div className="app-content">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/chat" element={<ChatPage />} />
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
   )
 }
