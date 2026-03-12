@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiZap, FiCode, FiSave, FiGrid } from 'react-icons/fi'
+import { FiCode, FiSave, FiGrid, FiZap } from 'react-icons/fi'
+import LightningBolt from '../components/LightningBolt'
 import './Landing.css'
 
 export default function Landing() {
@@ -14,10 +15,15 @@ export default function Landing() {
     <div className="landing">
       {/* Hero Section */}
       <section className="hero">
+        {/* Ambient background glow behind bolt */}
+        <div className="hero-bg-glow" aria-hidden="true" />
+
         <div className="hero-content">
-          <div className="hero-icon">
-            <FiZap size={48} />
+          {/* Large branded lightning bolt */}
+          <div className="hero-bolt">
+            <LightningBolt size={200} />
           </div>
+
           <h1 className="hero-title">D-Bolt AI</h1>
           <p className="hero-subtitle">Your Intelligent Coding Assistant</p>
           <p className="hero-description">
