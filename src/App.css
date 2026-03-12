@@ -1,28 +1,6 @@
-.app-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.app-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.loading-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
 .app {
   display: flex;
-  height: 100%;
+  height: 100vh;
   overflow: hidden;
   background: var(--bg-primary);
 }
@@ -42,7 +20,7 @@
 
 .sidebar {
   width: 260px;
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--bg-secondary);
@@ -248,71 +226,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--bg-primary);
-}
-
-.chat-empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-  animation: fadeIn 0.3s ease-in;
-}
-
-.chat-empty-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.chat-empty-content h2 {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.chat-empty-content p {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.empty-icon {
-  color: var(--accent);
-}
-
-.chat-messages-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message-enter {
-  animation: fadeIn 0.3s ease-in;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
 .chat-toolbar {
