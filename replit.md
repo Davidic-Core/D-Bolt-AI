@@ -175,9 +175,9 @@ HMR works through the Replit proxy. If styles stop updating, restart the workflo
 
 ---
 
-## Screenshots
+## UI References
 
-UI screenshots are stored in `docs/images/` and embedded in `README.md`:
+UI images are stored in `docs/images/` and embedded in `README.md`:
 
 | File | Description |
 |------|-------------|
