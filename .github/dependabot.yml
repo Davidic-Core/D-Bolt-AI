@@ -1,32 +1,17 @@
 version: 2
-
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    target-branch: "primary"
-
+  - package-ecosystem: "npm"       # Node.js / NPM dependencies
+    directory: "/"                 # Root of your repository
+    target-branch: "primary"       # Branch you develop on
     schedule:
-      interval: "weekly"
+      interval: "weekly"           # Checks for updates once a week
       day: "monday"
       time: "06:00"
-
-    open-pull-requests-limit: 5
-
+    open-pull-requests-limit: 5    # Max simultaneous PRs from Dependabot
     commit-message:
-      prefix: "deps"
-
+      prefix: "deps"               # Prefix for automatic commit messages
     labels:
       - "dependencies"
       - "automated"
-
-    versioning-strategy: increase
-
-  - package-ecosystem: "npm"
-    directory: "/"
-    target-branch: "primary"
-
-    schedule:
-      interval: "daily"
-
-    labels:
-      - "security"
+    allow:
+      - dependency-type: "all"     # Includes security and regular updates
