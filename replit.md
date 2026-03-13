@@ -175,6 +175,22 @@ HMR works through the Replit proxy. If styles stop updating, restart the workflo
 
 ---
 
+## UI References
+
+UI images are stored in `docs/images/` and embedded in `README.md`:
+
+| File | Description |
+|------|-------------|
+| `docs/images/landing-page.png` | Hero section with animated lightning bolt and navigation |
+| `docs/images/chat-ui.png` | Full chat interface with sidebar, welcome panel, and suggested prompts |
+
+To retake screenshots after UI changes, use a headless Chromium via nix-shell:
+```bash
+nix-shell -p chromium --run \
+  "chromium --headless=new --no-sandbox --disable-gpu --window-size=1280,800 \
+   --screenshot=docs/images/landing-page.png http://localhost:5000"
+```
+
 ## Maintenance Notes
 
 Update this file whenever:

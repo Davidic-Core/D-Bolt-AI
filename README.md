@@ -2,6 +2,12 @@
 
 D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript + Vite. It connects to multiple world-class AI models through the OpenRouter API and provides a clean, developer-focused chat interface with a full set of message management tools.
 
+### Landing Page
+![D-Bolt-AI Landing Page](docs/images/landing-page.png)
+
+### Chat Interface
+![D-Bolt-AI Chat UI](docs/images/chat-ui.png)
+
 ## Features
 
 ### Chat Interface
