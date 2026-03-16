@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react'
 import { useChatStore } from '../store/chatStore'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
+import SuggestedPrompts from './SuggestedPrompts'
+import TypingIndicator from './TypingIndicator'
 import { streamCompletion, generateTitle } from '../utils/ai'
 import { Message } from '../types'
 import { FiZap, FiDownload } from 'react-icons/fi'
@@ -96,6 +98,55 @@ export default function ChatArea() {
     abortRef.current?.abort()
   }
 
+  const handleRegenerateMessage = async (messageId: string) => {
+    if (!session || activeSessionId === null) return
+
+    const messageIdx = session.messages.findIndex(m => m.id === messageId)
+    if (messageIdx < 0) return
+
+    const userMessageIdx = messageIdx - 1
+    if (userMessageIdx < 0 || session.messages[userMessageIdx].role !== 'user') return
+
+    const userContent = session.messages[userMessageIdx].content
+    setError(null)
+
+    const assistantId = generateId()
+    const newAssistantMessage: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true,
+    }
+    addMessage(activeSessionId, newAssistantMessage)
+
+    const allMessages = session.messages.slice(0, userMessageIdx + 1)
+
+    abortRef.current = new AbortController()
+    setIsStreaming(true)
+
+    let fullContent = ''
+
+    try {
+      for await (const chunk of streamCompletion(allMessages, settings, abortRef.current.signal)) {
+        fullContent += chunk
+        updateMessage(activeSessionId, assistantId, fullContent, true)
+      }
+      updateMessage(activeSessionId, assistantId, fullContent, false)
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        updateMessage(activeSessionId, assistantId, fullContent || '*(stopped)*', false)
+      } else {
+        const msg = err instanceof Error ? err.message : 'Unknown error occurred'
+        setError(msg)
+        updateMessage(activeSessionId, assistantId, `*(Error: ${msg})*`, false)
+      }
+    } finally {
+      setIsStreaming(false)
+      abortRef.current = null
+    }
+  }
+
   const handleEditMessage = (messageId: string, newContent: string) => {
     if (!session || activeSessionId === null) return
     updateMessage(activeSessionId, messageId, newContent, false)
@@ -139,73 +190,16 @@ export default function ChatArea() {
     URL.revokeObjectURL(url)
   }
 
-  const handleRegenerateMessage = async (messageId: string) => {
-    if (!session || activeSessionId === null) return
-
-    setError(null)
-    const messageIndex = session.messages.findIndex(m => m.id === messageId)
-    if (messageIndex === -1 || messageIndex === 0) return
-
-    const userMessage = session.messages[messageIndex - 1]
-    if (userMessage.role !== 'user') return
-
-    const messagesBeforeUser = session.messages.slice(0, messageIndex - 1)
-    const allMessages = [...messagesBeforeUser, userMessage]
-
-    abortRef.current = new AbortController()
-    setIsStreaming(true)
-
-    updateMessage(activeSessionId, messageId, '', true)
-
-    let fullContent = ''
-
-    try {
-      for await (const chunk of streamCompletion(allMessages, settings, abortRef.current.signal)) {
-        fullContent += chunk
-        updateMessage(activeSessionId, messageId, fullContent, true)
-      }
-      updateMessage(activeSessionId, messageId, fullContent, false)
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        updateMessage(activeSessionId, messageId, fullContent || '*(stopped)*', false)
-      } else {
-        const msg = err instanceof Error ? err.message : 'Unknown error occurred'
-        setError(msg)
-        updateMessage(activeSessionId, messageId, `*(Error: ${msg})*`, false)
-      }
-    } finally {
-      setIsStreaming(false)
-      abortRef.current = null
-    }
-  }
-
   if (!session) {
     return (
-      <div className="chat-empty">
-        <div className="welcome-screen">
-          <div className="welcome-logo">
-            <FiZap size={48} />
+      <div className="chat-area">
+        <div className="chat-empty-state">
+          <div className="chat-empty-content">
+            <FiZap size={40} className="empty-icon" />
+            <h2>Welcome to D-Bolt-AI</h2>
+            <p>Your intelligent coding assistant is ready to help</p>
+            <SuggestedPrompts onSelectPrompt={handleSend} />
           </div>
-          <h1>Welcome to D-Bolt-AI</h1>
-          <p>Your intelligent coding assistant powered by leading AI models.</p>
-          <div className="welcome-features">
-            <div className="feature-card">
-              <span className="feature-icon">⚡</span>
-              <h3>Instant Code Help</h3>
-              <p>Get code suggestions, explanations, and fixes in seconds</p>
-            </div>
-            <div className="feature-card">
-              <span className="feature-icon">🤖</span>
-              <h3>Multiple AI Models</h3>
-              <p>Choose from GPT-4, Claude, Gemini, Llama and more</p>
-            </div>
-            <div className="feature-card">
-              <span className="feature-icon">🔒</span>
-              <h3>Your API Key</h3>
-              <p>Use your own OpenRouter key — full privacy and control</p>
-            </div>
-          </div>
-          <p className="welcome-cta">Click <strong>New Chat</strong> to start coding with AI</p>
         </div>
         <ChatInput onSend={handleSend} onStop={handleStop} isStreaming={isStreaming} />
       </div>
@@ -234,23 +228,30 @@ export default function ChatArea() {
       </div>
       <div className="chat-messages">
         {session.messages.length === 0 ? (
-          <div className="chat-start-hint">
-            <FiZap size={24} />
-            <p>Start the conversation</p>
+          <div className="chat-empty-state">
+            <div className="chat-empty-content">
+              <FiZap size={40} className="empty-icon" />
+              <h2>Welcome to D-Bolt-AI</h2>
+              <p>Your intelligent coding assistant is ready to help</p>
+              <SuggestedPrompts onSelectPrompt={handleSend} />
+            </div>
           </div>
         ) : (
-          session.messages.map(message => (
-            <ChatMessage
-              key={message.id}
-              message={message}
-              onRegenerateMessage={
-                message.role === 'assistant' ? () => handleRegenerateMessage(message.id) : undefined
-              }
-              onEditMessage={
-                message.role === 'user' ? (newContent) => handleEditMessage(message.id, newContent) : undefined
-              }
-            />
-          ))
+          <div className="chat-messages-list">
+            {session.messages.map(message => (
+              <ChatMessage
+                key={message.id}
+                message={message}
+                onRegenerateMessage={
+                  message.role === 'assistant' ? () => handleRegenerateMessage(message.id) : undefined
+                }
+                onEditMessage={
+                  message.role === 'user' ? (newContent) => handleEditMessage(message.id, newContent) : undefined
+                }
+              />
+            ))}
+            {isStreaming && <TypingIndicator />}
+          </div>
         )}
         {error && (
           <div className="error-banner">

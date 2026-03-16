@@ -1,140 +1,149 @@
 # D-Bolt-AI
 
-D-Bolt-AI is a high-performance, intelligent coding assistant powered by the OpenRouter API. It provides a sleek, modern interface for developers to interact with world-class AI models like GPT-4o, GPT-4o Mini, Claude 3.5 Sonnet, and Claude 3 Haiku.
+D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript + Vite. It connects to multiple world-class AI models through the OpenRouter API and provides a clean, developer-focused chat interface with a full set of message management tools.
 
-## 🚀 Features
+### Landing Page
+![D-Bolt-AI Landing Page](docs/images/landing-page.png)
 
-### Chat Capabilities
-- **Real-Time Streaming**: Experience ultra-fast, word-by-word response streaming with live updates.
-- **Copy Messages**: One-click copy to clipboard for any message (user or assistant).
-- **Edit User Messages**: Modify previous user messages inline and resend them to the AI.
-- **Regenerate Responses**: Re-run AI responses for any assistant message with full streaming.
-- **Stop Generation**: Interrupt AI streaming at any time to view partial responses.
-- **Export Chat**: Download conversations as JSON (structured data) or TXT (formatted markdown).
-- **Smart Context**: Built-in system prompts optimized for expert-level coding assistance.
-- **Code Intelligence**: Beautiful syntax highlighting and one-click code block copying.
-- **Persistent Sessions**: All chat history, settings, and API keys automatically persist across browser refreshes.
-- **Multi-Session Support**: Create and manage multiple chat conversations simultaneously.
-- **Responsive Design**: Optimized for both focused coding and quick mobile lookups.
+### Chat Interface
+![D-Bolt-AI Chat UI](docs/images/chat-ui.png)
 
-### AI Models
-- **Multi-Model Support**: Instantly switch between different AI models to find the best fit for your task.
+## Features
 
-## 🤖 Supported AI Models
+### Chat Interface
+- **Real-Time Streaming** — Responses stream word-by-word using the OpenRouter API with live UI updates.
+- **Copy Messages** — One-click copy to clipboard for any message (user or assistant).
+- **Edit User Messages** — Modify any previous user message inline and resend it to the AI.
+- **Regenerate Responses** — Re-run any assistant response with full streaming support.
+- **Stop Generation** — Interrupt streaming at any time to view partial output.
+- **Export Chat** — Download conversations as JSON (structured data) or TXT (readable format).
+- **Suggested Prompts** — Empty-state starter prompts to help users begin a conversation.
+- **Typing Indicator** — Animated indicator while the AI is generating a response.
 
-D-Bolt-AI currently supports the following AI models through OpenRouter:
+### Session & State Management
+- **Persistent Sessions** — All conversations, settings, and the active session survive page reloads via Zustand's persist middleware (localStorage key: `d-bolt-ai-storage`).
+- **Multi-Session Support** — Create and manage multiple independent chat conversations from the sidebar.
 
-### OpenAI
-- **GPT-4o** - Most capable OpenAI model with advanced reasoning and code analysis
-- **GPT-4o Mini** - Fast and affordable model for quick queries and iterations
+### Interface & UX
+- **Sidebar** — Session list with new-chat creation and session switching.
+- **Settings Panel** — Configure API key, model, temperature, max tokens, and system prompt.
+- **Responsive Layout** — Works on desktop and mobile screens.
+- **Dark Theme** — Full dark UI with CSS variable theming.
 
-### Anthropic
-- **Claude 3.5 Sonnet** - Excellent for detailed coding assistance, explanations, and refactoring
-- **Claude 3 Haiku** - Fast and efficient for quick responses and simple tasks
+## Supported AI Models
 
-> **Note**: More models will be added as compatibility with OpenRouter is verified.
+All models are accessed via [OpenRouter](https://openrouter.ai):
 
-## 🛠️ Tech Stack
+| Provider   | Model              | Notes                                      |
+|------------|--------------------|--------------------------------------------|
+| OpenAI     | GPT-4o             | Strongest reasoning and code analysis      |
+| OpenAI     | GPT-4o Mini        | Fast, affordable for quick iterations      |
+| Anthropic  | Claude 3.5 Sonnet  | Excellent for detailed code explanations   |
+| Anthropic  | Claude 3 Haiku     | Fast responses for simple tasks            |
 
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **State Management**: Zustand with persist middleware for automatic localStorage persistence
-- **Styling**: Custom CSS with CSS Variables for easy theming
-- **AI Integration**: OpenRouter API with streaming support
-- **Markdown Rendering**: React Markdown with syntax highlighting via Prism
-- **UI Components**: Feather Icons (react-icons), Framer Motion for animations
+## Tech Stack
 
-## 📂 Project Structure
+| Layer            | Technology                          |
+|------------------|-------------------------------------|
+| UI Framework     | React 18 + TypeScript               |
+| Build Tool       | Vite                                |
+| State Management | Zustand with persist middleware     |
+| AI Integration   | OpenRouter API (streaming)          |
+| Styling          | Custom CSS with CSS Variables       |
+| Markdown         | react-markdown + syntax highlighting |
+| Icons            | react-icons (Feather icon set)      |
 
-```text
+## Project Structure
+
+```
 src/
 ├── components/
-│   ├── ChatArea.tsx      # Main chat interface, streaming, regeneration, export
-│   ├── ChatMessage.tsx   # Message rendering with edit, copy, regenerate buttons
-│   ├── ChatInput.tsx     # Text input with auto-height and submission handling
-│   ├── Sidebar.tsx       # Chat history and session management
-│   └── Settings.tsx      # API key, model, temperature, and prompt configuration
+│   ├── ChatArea.tsx      # Main chat logic: streaming, regeneration, export, typing indicator
+│   ├── ChatMessage.tsx   # Message rendering with copy, edit, and regenerate controls
+│   ├── ChatInput.tsx     # Auto-expanding text input with submission handling
+│   ├── Sidebar.tsx       # Session list and new-chat management
+│   └── Settings.tsx      # API key, model, temperature, and system prompt configuration
 ├── store/
 │   └── chatStore.ts      # Zustand store with persist middleware
 ├── types/
-│   └── index.ts          # TypeScript interfaces
+│   └── index.ts          # TypeScript interfaces for messages, sessions, settings
 ├── utils/
-│   └── ai.ts             # OpenRouter API integration and streaming
-├── App.tsx               # Root layout component
+│   └── ai.ts             # OpenRouter API integration with streaming support
+├── App.tsx               # Root layout: sidebar, topbar, chat area, settings modal
+├── App.css               # All component styles
+├── index.css             # Global CSS variables, dark theme, scrollbar styles
 └── main.tsx              # React entry point
 ```
 
-## ⚙️ Setup & Installation
+## Development
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Davidic-Core/D-Bolt-AI.git
-   cd D-Bolt-AI
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+# Start development server (port 5000)
+npm run dev
 
-3. **Start development server**:
-   ```bash
-   npm run dev
-   ```
-   The app will be available at `http://localhost:5000`
+# Build for production
+npm run build
 
-4. **Configure OpenRouter API Key**:
-   - Open the application in your browser
-   - Click the **Settings** icon in the sidebar
-   - Paste your [OpenRouter API Key](https://openrouter.ai/keys)
-   - Click **Save Settings**
-   - Your key is stored locally in your browser and never sent to any server except OpenRouter
+# Preview the production build locally
+npm run preview
+```
 
-5. **Start chatting**:
-   - Click **New Chat** to create a conversation
-   - Type your message and press Enter to send
-   - Use the action buttons on messages to copy, edit, regenerate, or export
+## Configuration
 
-## 💡 Example Usage
+### OpenRouter API Key
 
-Try asking D-Bolt-AI:
-> "Write a TypeScript function that implements a debounce utility and explain how it works with a React useEffect hook."
+1. Get a key from [openrouter.ai/keys](https://openrouter.ai/keys).
+2. Open the app and click the **Settings** icon in the sidebar.
+3. Paste your key and click **Save Settings**.
 
-Or for refactoring:
-> "Refactor this code to use async/await instead of promises and add proper error handling."
+The key is stored entirely in your browser's localStorage. It is only ever sent directly to OpenRouter — never to any other server.
 
-## 🔄 How It Works
+## How It Works
 
-### Message Flow
-1. User types a message and presses Enter
-2. Message is added to the current session in the store
-3. All previous messages are sent to OpenRouter API
-4. AI response streams in real-time, updating with each token
-5. User can copy, edit, regenerate, or export the conversation
+### Streaming Message Flow
+
+1. User types a message and presses Enter.
+2. The message is added to the active session in the Zustand store.
+3. All messages in the session are sent to the OpenRouter API.
+4. The response streams in token-by-token, with the UI updating live.
+5. On completion, the assistant message is saved to the store (and persisted to localStorage).
 
 ### State Persistence
-The application uses Zustand's persist middleware to automatically store:
-- **Chat sessions** - All conversations with their messages and metadata
-- **Active session ID** - Which conversation is currently displayed
-- **User settings** - API key, selected model, temperature, max tokens, and system prompt
 
-This data is stored in localStorage under the key `d-bolt-ai-storage`, allowing chat history and settings to survive page reloads and browser restarts.
+Zustand's persist middleware serializes the following to `localStorage` under the key `d-bolt-ai-storage`:
 
-## 🤝 Contribution Guidelines
+| Field             | Description                                          |
+|-------------------|------------------------------------------------------|
+| `sessions`        | All conversations with their full message history    |
+| `activeSessionId` | Which conversation is currently displayed            |
+| `settings`        | API key, model, temperature, max tokens, system prompt |
 
-- **Branch Strategy**: Use feature branches (`feature/your-feature`) for all changes
-- **Main Protection**: The `main` branch is protected; submit all changes via Pull Request
-- **Code Quality**: Ensure all TypeScript types are correctly defined and avoid using `any`
-- **Component Structure**: Keep components focused and reusable
-- **Styling**: Use CSS variables for consistency and maintain dark theme throughout
+UI-only state (`isSettingsOpen`, `isSidebarOpen`) is intentionally not persisted.
 
-## ⚠️ Known Issues & Notes
+## Production Readiness
 
-- **API Key**: Ensure your OpenRouter API key is valid and has sufficient credits. If you see "Missing Authentication Header", verify your key is saved correctly in Settings
-- **Model Availability**: Some models may have different pricing or rate limits; check your OpenRouter account for current status
-- **Session Persistence**: Chat history is stored locally in your browser. Clearing browser data will reset conversations
-- **Streaming**: Ensure JavaScript is enabled and your connection is stable for smooth streaming responses
+- Clean TypeScript build with no errors (`npm run build`)
+- Zustand persist middleware for durable state across reloads
+- Graceful streaming abort handling
+- Environment-safe Vite configuration (host `0.0.0.0`, port `5000`, `allowedHosts: all`)
 
-## 📄 License
+## Contribution Guidelines
 
-This project is licensed under the MIT License. See LICENSE file for details.
+- **Branch strategy**: All work on feature branches (`feature/description`), merged to `main` via Pull Request.
+- **Main branch**: Protected — no direct commits.
+- **TypeScript**: Avoid `any`; keep all interfaces in `src/types/index.ts`.
+- **Styling**: Use CSS variables; maintain the dark theme throughout.
+- **Components**: Keep components focused and single-responsibility.
+
+## Known Issues
+
+- Clearing browser data will erase all chat history (stored in localStorage).
+- Some OpenRouter models may have rate limits or require credits — check your account if you see auth errors.
+- Streaming requires a stable connection and JavaScript enabled.
+
+## License
+
+MIT License. See the LICENSE file for details.

@@ -1,240 +1,201 @@
-# Replit Development Guide: D-Bolt-AI
+# Replit Development Guide — D-Bolt-AI
 
-This document provides specific instructions for developing and running D-Bolt-AI within the Replit environment, including architecture details and deployment information.
+Reference document for developing and running D-Bolt-AI on Replit. Covers architecture, state management, API integration, and workflow conventions.
 
-## 🚀 Quick Start on Replit
-
-1. **Environment Setup**: Replit automatically detects the `package.json` configuration. If dependencies aren't installed, run:
-   ```bash
-   npm install
-   ```
-
-2. **Run Application**: Click the "Run" button or execute:
-   ```bash
-   npm run dev
-   ```
-   The app will be available on port `5000` via the Replit proxy.
-
-3. **Build for Production**:
-   ```bash
-   npm run build
-   ```
-   This generates optimized static files in the `dist/` directory.
-
-## 🏗️ Architecture Overview
-
-### Frontend Architecture
-D-Bolt-AI uses a component-based React architecture:
-
-- **React 18 + TypeScript**: Type-safe UI components
-- **Vite**: Fast development server and optimized production builds
-- **Zustand**: Lightweight state management with automatic persistence
-- **CSS Variables**: Theme system for consistent styling
-
-### State Management
-The application uses Zustand with the persist middleware to manage all application state:
-
-**Persisted State** (automatically saved to localStorage):
-- `sessions[]` - Array of all chat conversations with messages
-- `activeSessionId` - Currently displayed conversation
-- `settings` - User configuration (API key, model, temperature, max tokens, system prompt)
-
-**Non-Persisted State** (UI-only):
-- `isSettingsOpen` - Settings modal visibility
-- `isSidebarOpen` - Sidebar toggle state
-
-The persist middleware stores all data under the localStorage key `d-bolt-ai-storage`, which ensures chat history and user preferences survive page reloads and browser restarts.
-
-### API Integration
-- **OpenRouter API**: Handles all AI requests via `src/utils/ai.ts`
-- **Streaming Support**: Real-time token generation with proper error handling
-- **Authentication**: API key stored securely in browser localStorage, only sent to OpenRouter
-
-## 🔑 API Configuration
-
-### OpenRouter API Key Setup
-
-1. **Get Your Key**:
-   - Visit [OpenRouter Keys](https://openrouter.ai/keys)
-   - Create or copy your API key
-
-2. **Configure in App**:
-   - Open the application in Replit Preview
-   - Click the Settings button (gear icon) in the sidebar
-   - Paste your OpenRouter API key
-   - Click Save Settings
-
-3. **Storage & Security**:
-   - The key is stored locally in your browser's localStorage (not on Replit servers)
-   - The key is only transmitted directly to OpenRouter for API calls
-   - Clearing your browser data will delete the saved key
-
-### State Persistence Details
-
-The application uses **Zustand's persist middleware** to automatically manage state:
-
-```javascript
-// From src/store/chatStore.ts
-persist(
-  (set, get) => ({
-    // store implementation
-  }),
-  {
-    name: 'd-bolt-ai-storage',
-    partialize: (state) => ({
-      sessions: state.sessions,
-      activeSessionId: state.activeSessionId,
-      settings: state.settings,
-    }),
-  }
-)
-```
-
-This configuration:
-- Saves state to localStorage under `d-bolt-ai-storage`
-- Automatically loads state on app initialization
-- Only persists necessary fields (not UI state like modal visibility)
-- Provides offline functionality with automatic sync on reconnect
-
-## 🔄 Development Workflow
-
-### Hot Module Replacement (HMR)
-HMR is configured to work through the Replit proxy:
-- **Configuration**: `vite.config.ts` sets `hmr.protocol: 'wss'` for secure WebSocket
-- **Proxy Compatibility**: Uses `allowedHosts: 'all'` to work with Replit's iframe proxy
-- **Troubleshooting**: If styles aren't updating, check `vite.config.ts` and restart the dev server
-
-### Testing the AI Features
-To test chat functionality:
-1. Ensure you have an active OpenRouter API key
-2. Configure it in Settings
-3. Test with a simple prompt: "Say hello"
-4. Verify streaming works (tokens appear in real-time)
-5. Test features: copy, edit, regenerate, export
-
-### Common Development Tasks
-
-**Add a New Feature**:
-1. Create component in `src/components/`
-2. Add types to `src/types/index.ts` if needed
-3. Update store in `src/store/chatStore.ts` if state is required
-4. Add styling to `src/App.css`
-5. Integrate into parent component
-
-**Update Store Actions**:
-1. Modify `src/store/chatStore.ts`
-2. Update TypeScript interfaces
-3. Test that persistence works (data survives page reload)
-
-**Add API Integration**:
-1. Create utility function in `src/utils/`
-2. Use in component via store actions
-3. Handle errors gracefully with user feedback
-
-## 🌿 Git & Deployment Strategy
-
-### Branch Strategy
-- **Main Branch**: Production-ready code only
-- **Feature Branches**: `feature/description` for all new work
-- **Hotfix Branches**: `hotfix/description` for critical fixes
-- **Never commit directly to main** - use Pull Requests
-
-### Pre-Deployment Checklist
-Before publishing:
-1. Run `npm run build` locally to verify production build
-2. Test all major features (chat, copy, edit, regenerate, export)
-3. Verify settings persistence works
-4. Check console for TypeScript or runtime errors
-5. Ensure responsive design works on mobile
-
-### Publishing to Production
-1. Use the Replit **Deploy** tab
-2. Deployment automatically:
-   - Runs `npm run build`
-   - Serves static files from `dist/` directory
-   - Applies TLS/SSL certificates
-   - Generates a .replit.app domain
-
-### Environment Configuration
-Replit automatically configures:
-- Host: `0.0.0.0` (accessible on all network interfaces)
-- Port: `5000` (for dev) or `3000` (for preview)
-- HTTPS: Automatic (required for OpenRouter CORS)
-
-## 📊 Performance Considerations
-
-### Optimization Tips
-- **Lazy Load Components**: Use React.lazy for heavy components if needed
-- **Memoization**: Use React.memo for components that don't need frequent re-renders
-- **State Management**: Keep store actions lean and avoid unnecessary re-renders
-- **Bundle Size**: Monitor with `npm run build` output
-
-### Current Performance
-- Development: Instant reload with Vite HMR
-- Production: Optimized static bundle (~1MB gzipped)
-- AI Streaming: Real-time token streaming with smooth UI updates
-
-## 🛠️ Useful Commands
+## Quick Start
 
 ```bash
-# Development
-npm run dev              # Start dev server on port 5000
-npm run build           # Build for production
-npm run preview         # Preview production build locally
-
-# Maintenance
-npm update              # Update all dependencies
-npm audit              # Check for security vulnerabilities
-npm install            # Reinstall all dependencies
+npm install       # Install dependencies
+npm run dev       # Start dev server on port 5000
+npm run build     # Production build → dist/
+npm run preview   # Preview the production build
 ```
 
-## 📚 Project Dependencies
+The app is served on port `5000` and accessed via the Replit proxy in the preview pane.
 
-**Key Dependencies**:
-- `react` - UI framework
-- `zustand` - State management
-- `react-markdown` - Markdown rendering
-- `react-syntax-highlighter` - Code syntax highlighting
-- `react-icons` - Icon library
-- `axios` - HTTP client (optional, fetch used instead)
-- `framer-motion` - Animation library
+---
 
-**Dev Dependencies**:
-- `vite` - Build tool
-- `typescript` - Type safety
-- `@vitejs/plugin-react` - Vite React plugin
+## Architecture Overview
 
-## 📝 Maintenance
+### Stack
 
-Update this file whenever you:
-- Make significant architectural changes
-- Modify state management structure
-- Change API integration approach
-- Update deployment or build process
-- Add new persistent state
+| Layer            | Technology                              |
+|------------------|-----------------------------------------|
+| UI Framework     | React 18 + TypeScript                   |
+| Build Tool       | Vite (port 5000, host 0.0.0.0)          |
+| State Management | Zustand with persist middleware         |
+| AI Backend       | OpenRouter API — `src/utils/ai.ts`      |
+| Styling          | Custom CSS + CSS Variables (dark theme) |
 
-## 🐛 Troubleshooting
+### Component Map
 
-### Common Issues
+```
+App.tsx
+├── Sidebar.tsx          — Session list, new-chat button
+├── ChatArea.tsx         — Core chat logic, streaming, export, typing indicator
+│   ├── ChatMessage.tsx  — Per-message UI: copy, edit, regenerate controls
+│   └── ChatInput.tsx    — Text input with auto-height and send handling
+└── Settings.tsx         — Modal: API key, model, temperature, system prompt
+```
 
-**"No API key configured" error**:
-- Open Settings and verify your API key is saved
-- Check OpenRouter account has active credits
-- Ensure key format is correct (starts with `sk-or-...`)
+### Key Files
 
-**Chat history disappears**:
-- Check browser localStorage isn't being cleared on exit
-- Verify `d-bolt-ai-storage` exists in DevTools Storage tab
-- Try clearing cache and reloading
+| File                    | Responsibility                                           |
+|-------------------------|----------------------------------------------------------|
+| `src/App.tsx`           | Root layout; wires sidebar, topbar, chat area, settings  |
+| `src/store/chatStore.ts`| Zustand store — all app state + persist middleware       |
+| `src/utils/ai.ts`       | OpenRouter streaming API call; handles abort controller  |
+| `src/types/index.ts`    | TypeScript interfaces: Message, Session, Settings        |
+| `src/App.css`           | All component styles                                     |
+| `src/index.css`         | CSS variables, global dark theme, scrollbar styles       |
 
-**Styles not updating**:
-- Restart dev server: press `Ctrl+C` then `npm run dev`
-- Check `vite.config.ts` HMR configuration
-- Hard refresh browser with `Ctrl+Shift+R`
+---
 
-**Streaming not working**:
-- Verify network tab shows WebSocket connection to OpenRouter
-- Check API key validity in OpenRouter account
-- Try a simple test message first before complex requests
+## State Management
 
-For more help, check the main README.md or create an issue on GitHub.
+### Zustand Store (`src/store/chatStore.ts`)
+
+All state lives in a single Zustand store with two layers:
+
+**Persisted state** — automatically written to `localStorage` under the key `d-bolt-ai-storage`:
+
+| Field             | Type       | Description                              |
+|-------------------|------------|------------------------------------------|
+| `sessions`        | `Session[]`| All conversations with full message history |
+| `activeSessionId` | `string`   | ID of the currently displayed session    |
+| `settings`        | `Settings` | API key, model, temperature, max tokens, system prompt |
+
+**Non-persisted state** — in-memory only, resets on page load:
+
+| Field             | Type      | Description                    |
+|-------------------|-----------|--------------------------------|
+| `isSettingsOpen`  | `boolean` | Controls settings modal        |
+| `isSidebarOpen`   | `boolean` | Controls sidebar open/closed   |
+
+The `partialize` option on the persist middleware ensures only the three persisted fields are written to localStorage — never the UI state.
+
+### localStorage Key
+
+```
+d-bolt-ai-storage
+```
+
+Inspect or clear this in DevTools → Application → Local Storage.
+
+---
+
+## API Integration
+
+### OpenRouter (`src/utils/ai.ts`)
+
+All AI requests go through `https://openrouter.ai/api/v1/chat/completions` with streaming enabled.
+
+- **Streaming**: Uses the `ReadableStream` / `fetch` API with `stream: true`. Tokens update the UI in real time.
+- **Abort**: An `AbortController` ref in `ChatArea.tsx` handles the Stop Generation feature.
+- **Error handling**: Network and API errors surface with a user-visible message in the chat area.
+
+### API Key
+
+The OpenRouter API key is entered by the user in the Settings panel and stored in Zustand's persisted `settings` object (in `localStorage`). It is sent only in the `Authorization` header of requests to `openrouter.ai` — never to any other server, and never stored outside the user's own browser.
+
+---
+
+## Vite Configuration
+
+```ts
+// vite.config.ts (key settings)
+server: {
+  host: '0.0.0.0',     // Required: listen on all interfaces for Replit proxy
+  port: 5000,
+  hmr: {
+    protocol: 'wss',   // Secure WebSocket through Replit's HTTPS proxy
+    clientPort: 443,
+  },
+  allowedHosts: 'all', // Required: Replit preview uses a different origin
+}
+```
+
+HMR works through the Replit proxy. If styles stop updating, restart the workflow.
+
+---
+
+## Development Workflow
+
+### Branch Strategy
+
+- `main` — protected, production-ready only.
+- All new work happens on feature branches (`feature/description`) or Replit agent branches.
+- Changes are merged to `main` via Pull Request after review.
+- Replit agent branches are automatically created when a task agent does work, and merged back to main when complete.
+
+### Adding a Feature
+
+1. Create the component in `src/components/`.
+2. Add any new TypeScript interfaces to `src/types/index.ts`.
+3. If the feature needs persistent state, add it to `chatStore.ts` and include it in `partialize`.
+4. Add styles to `App.css` (use CSS variables for colors, do not hardcode hex values).
+5. Wire the component into its parent (`App.tsx` or `ChatArea.tsx`).
+
+### Updating the Store
+
+1. Edit `src/store/chatStore.ts`.
+2. Update matching interfaces in `src/types/index.ts`.
+3. After changes, reload the app and verify data persists across a hard refresh (check `d-bolt-ai-storage` in DevTools).
+
+---
+
+## Deployment
+
+### Pre-Deployment Checklist
+
+- [ ] `npm run build` completes with no TypeScript errors
+- [ ] Streaming works end-to-end with a real API key
+- [ ] Copy, edit, regenerate, and export all function correctly
+- [ ] Settings persist after a page reload
+- [ ] No console errors in production build preview
+
+### Publishing on Replit
+
+1. Open the **Deploy** tab in the Replit workspace.
+2. Replit will run `npm run build` and serve the `dist/` directory.
+3. A `.replit.app` domain with automatic TLS is assigned.
+4. The production environment is separate from the dev server — re-deploy after each significant change.
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| "No API key configured" | Open Settings, paste your OpenRouter key, click Save |
+| Chat history gone | Check `d-bolt-ai-storage` in DevTools localStorage; browser data may have been cleared |
+| Styles not updating | Restart the dev workflow; hard-refresh with Ctrl+Shift+R |
+| Streaming not working | Check the Network tab for the OpenRouter request; verify the API key has credits |
+| Preview pane blank | Ensure the workflow is running on port 5000; check workflow logs for startup errors |
+
+---
+
+## UI References
+
+UI images are stored in `docs/images/` and embedded in `README.md`:
+
+| File | Description |
+|------|-------------|
+| `docs/images/landing-page.png` | Hero section with animated lightning bolt and navigation |
+| `docs/images/chat-ui.png` | Full chat interface with sidebar, welcome panel, and suggested prompts |
+
+To retake screenshots after UI changes, use a headless Chromium via nix-shell:
+```bash
+nix-shell -p chromium --run \
+  "chromium --headless=new --no-sandbox --disable-gpu --window-size=1280,800 \
+   --screenshot=docs/images/landing-page.png http://localhost:5000"
+```
+
+## Maintenance Notes
+
+Update this file whenever:
+- The Zustand store shape or persist config changes.
+- New routes or major layout changes are introduced.
+- The Vite config or port changes.
+- A new persistent field is added to `settings`.
+- The deployment or build process changes.
