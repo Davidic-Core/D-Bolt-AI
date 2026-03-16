@@ -1,6 +1,18 @@
-# D-Bolt-AI
+# D-Bolt-AI — Intelligent Coding Assistant
 
-D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript + Vite. It connects to multiple world-class AI models through the OpenRouter API and provides a clean, developer-focused chat interface with a full set of message management tools.
+> A modern, developer-focused AI chat application with real-time streaming, multi-model support, and GPT-4o powered image analysis. Built with React 18 + TypeScript + Vite, connected to the world's top AI models through OpenRouter.
+
+---
+
+## Overview
+
+D-Bolt-AI gives developers an instant, browser-based interface to the best AI coding models available. Chat with GPT-4o, Claude 3.5 Sonnet, and more — with responses that stream word-by-word, conversations that persist across sessions, and a futuristic dark UI designed for focus.
+
+The landing page also includes a standalone **Image Analysis** tool: drop any screenshot, diagram, or UI mockup and get a detailed, streaming AI breakdown in seconds — no separate tool required.
+
+---
+
+## Screenshots
 
 ### Landing Page
 ![D-Bolt-AI Landing Page](docs/images/landing-page.png)
@@ -8,177 +20,231 @@ D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript +
 ### Chat Interface
 ![D-Bolt-AI Chat UI](docs/images/chat-ui.png)
 
+---
+
 ## Image Analysis Feature
 
 ![D-Bolt-AI Image Analysis](public/docs/image-analysis-preview.png)
 
-Upload any image directly on the landing page and get an instant AI-powered analysis streamed in real time.
+Instantly analyze any image using GPT-4o's vision capabilities, directly from the landing page — no chat session required.
 
-- **Drag & drop or click to browse** — supports PNG, JPG, GIF, and WebP up to 10 MB
-- **AI analysis via GPT-4o vision** — identifies code, diagrams, UI layouts, and visual content with detailed explanations
-- **Responses stream in real time** — output appears token-by-token with a live cursor as the AI generates
-- **Copy to clipboard in one click** — the **Copy** button in the result header copies the full analysis; shows a brief **Copied!** confirmation
+| Step | Action |
+|------|--------|
+| 1 | Drag and drop an image onto the upload zone, or click to browse |
+| 2 | Preview the image inline and click **Analyze Image** |
+| 3 | Watch the AI analysis stream in token-by-token |
+| 4 | Click **Copy** to copy the full result to your clipboard |
+| — | Click **Stop Analysis** at any time to cancel the stream |
+| — | Click **×** to remove the image and start over |
+
+- Accepts **PNG, JPG, GIF, WebP** up to **10 MB**
+- Always uses **GPT-4o** (vision-capable), regardless of the chat model setting
+- Images are converted to base64 in the browser — never stored on any server
+- Results render with full markdown formatting (code blocks, lists, headings)
+
+---
 
 ## Features
 
-### Image Analysis _(Landing Page)_
-- **Drag & Drop Upload** — Drag an image onto the landing page drop zone or click to browse. Supports PNG, JPG, GIF, and WebP up to 10 MB.
-- **Instant AI Analysis** — Powered by GPT-4o via OpenRouter. Analyzes code screenshots, UI mockups, diagrams, and any visual content.
-- **Streaming Response** — The AI analysis streams in token-by-token, with a live blinking cursor while generating.
-- **Copy to Clipboard** — A **Copy** button in the result header copies the full AI analysis to the clipboard with a brief **Copied!** confirmation.
-- **Stop Analysis** — Cancel an in-progress analysis at any time with the Stop button.
-- **Image Preview** — Uploaded images display inline before submission, with a remove (×) button to clear and start over.
+### AI Chat Interface
+- **Real-time streaming** — Responses appear token-by-token via OpenRouter's streaming API
+- **Multi-model support** — Switch between GPT-4o, GPT-4o Mini, Claude 3.5 Sonnet, and Claude 3 Haiku from Settings
+- **Copy messages** — One-click clipboard copy for any message
+- **Edit & resend** — Modify any previous user message and resubmit inline
+- **Regenerate responses** — Re-run any assistant response with full streaming
+- **Stop generation** — Cancel streaming mid-response at any time
+- **Export conversations** — Download any chat as JSON (structured) or TXT (readable)
+- **Suggested prompts** — Starter prompts guide new users on the empty chat screen
+- **Typing indicator** — Animated pulse while the AI is generating
 
-### Chat Interface
-- **Real-Time Streaming** — Responses stream word-by-word using the OpenRouter API with live UI updates.
-- **Copy Messages** — One-click copy to clipboard for any message (user or assistant).
-- **Edit User Messages** — Modify any previous user message inline and resend it to the AI.
-- **Regenerate Responses** — Re-run any assistant response with full streaming support.
-- **Stop Generation** — Interrupt streaming at any time to view partial output.
-- **Export Chat** — Download conversations as JSON (structured data) or TXT (readable format).
-- **Suggested Prompts** — Empty-state starter prompts to help users begin a conversation.
-- **Typing Indicator** — Animated indicator while the AI is generating a response.
+### Image Analysis
+- **Drag-and-drop upload zone** — Drop files or click to browse; inline image preview
+- **GPT-4o vision analysis** — Identifies code, UI layouts, diagrams, and visual content
+- **Streaming result** — Analysis streams in real time with a live blinking cursor
+- **Copy to clipboard** — Single-click copy with a **Copied!** confirmation flash
+- **Abort mid-stream** — Stop Analysis button cancels the request via AbortController
 
 ### Session & State Management
-- **Persistent Sessions** — All conversations, settings, and the active session survive page reloads via Zustand's persist middleware (localStorage key: `d-bolt-ai-storage`).
-- **Multi-Session Support** — Create and manage multiple independent chat conversations from the sidebar.
+- **Persistent sessions** — All chats and settings survive page reloads (Zustand + localStorage)
+- **Multi-session sidebar** — Create, switch, and delete independent conversations
+- **Per-session model tracking** — Each session records the model used when it was created
 
 ### Interface & UX
-- **Sidebar** — Session list with new-chat creation and session switching.
-- **Settings Panel** — Configure API key, model, temperature, max tokens, and system prompt.
-- **Responsive Layout** — Works on desktop and mobile screens.
-- **Dark Theme** — Full dark UI with CSS variable theming.
+- **Futuristic dark theme** — Deep black backgrounds, cyan/violet glow accents, CSS variable theming
+- **Responsive layout** — Works cleanly on desktop and tablet screens
+- **Settings panel** — Configure API key, model, temperature, max tokens, and system prompt
+- **Error boundaries** — Graceful error handling at the component level
+
+---
 
 ## Supported AI Models
 
-All models are accessed via [OpenRouter](https://openrouter.ai):
+All models route through [OpenRouter](https://openrouter.ai):
 
-| Provider   | Model              | Used For                                   |
-|------------|--------------------|--------------------------------------------|
-| OpenAI     | GPT-4o             | Chat · **Image analysis (vision)**         |
-| OpenAI     | GPT-4o Mini        | Chat — fast, affordable for quick tasks    |
-| Anthropic  | Claude 3.5 Sonnet  | Chat — detailed code explanations          |
-| Anthropic  | Claude 3 Haiku     | Chat — fast responses for simple tasks     |
+| Provider  | Model             | Used For                                        |
+|-----------|-------------------|-------------------------------------------------|
+| OpenAI    | GPT-4o            | Chat · **Image Analysis (vision)**              |
+| OpenAI    | GPT-4o Mini       | Chat — fast, cost-effective                     |
+| Anthropic | Claude 3.5 Sonnet | Chat — nuanced code and long-form explanations  |
+| Anthropic | Claude 3 Haiku    | Chat — fast, lightweight responses              |
 
-> **Note:** The Image Analysis feature always uses **GPT-4o** regardless of the model selected in Settings, because it is the only vision-capable model in the current lineup.
+> **Image Analysis always uses GPT-4o** regardless of the model selected in Settings. This model is required for vision input.
+
+---
 
 ## Tech Stack
 
-| Layer            | Technology                          |
-|------------------|-------------------------------------|
-| UI Framework     | React 18 + TypeScript               |
-| Build Tool       | Vite                                |
-| State Management | Zustand with persist middleware     |
-| AI Integration   | OpenRouter API (streaming)          |
-| Styling          | Custom CSS with CSS Variables       |
-| Markdown         | react-markdown + syntax highlighting |
-| Icons            | react-icons (Feather icon set)      |
+| Layer            | Technology                            |
+|------------------|---------------------------------------|
+| UI Framework     | React 18 + TypeScript                 |
+| Build Tool       | Vite 5                                |
+| State Management | Zustand 4 with `persist` middleware   |
+| AI Integration   | OpenRouter API (SSE streaming)        |
+| Routing          | React Router DOM 7                    |
+| Styling          | Custom CSS + CSS Custom Properties    |
+| Markdown         | react-markdown + react-syntax-highlighter |
+| Animations       | Framer Motion                         |
+| Icons            | react-icons (Feather set)             |
 
-## Project Structure
+---
 
-```
-src/
-├── components/
-│   ├── ChatArea.tsx      # Main chat logic: streaming, regeneration, export, typing indicator
-│   ├── ChatMessage.tsx   # Message rendering with copy, edit, and regenerate controls
-│   ├── ChatInput.tsx     # Auto-expanding text input with submission handling
-│   ├── Sidebar.tsx       # Session list and new-chat management
-│   └── Settings.tsx      # API key, model, temperature, and system prompt configuration
-├── pages/
-│   ├── Landing.tsx       # Landing page + ImageAnalysisSection (upload, stream, copy)
-│   └── Landing.css       # Landing page styles including drop zone and result box
-├── store/
-│   └── chatStore.ts      # Zustand store with persist middleware
-├── types/
-│   └── index.ts          # TypeScript interfaces for messages, sessions, settings
-├── utils/
-│   └── ai.ts             # OpenRouter API: streamCompletion (chat) + analyzeImageStream (vision)
-├── App.tsx               # Root layout: sidebar, topbar, chat area, settings modal
-├── App.css               # All component styles
-├── index.css             # Global CSS variables, dark theme, scrollbar styles
-└── main.tsx              # React entry point
-```
+## Getting Started
 
-## Development
+### Prerequisites
+
+- **Node.js** 20 or later
+- An **OpenRouter API key** — get one at [openrouter.ai/keys](https://openrouter.ai/keys)
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/d-bolt-ai.git
+cd d-bolt-ai
+
 # Install dependencies
 npm install
 
-# Start development server (port 5000)
+# Start the development server
 npm run dev
-
-# Build for production
-npm run build
-
-# Preview the production build locally
-npm run preview
 ```
+
+The app runs on **http://localhost:5000** by default.
+
+### Build for Production
+
+```bash
+npm run build      # TypeScript compile + Vite bundle → dist/
+npm run preview    # Serve the production build locally
+```
+
+---
 
 ## Configuration
 
 ### OpenRouter API Key
 
-1. Get a key from [openrouter.ai/keys](https://openrouter.ai/keys).
-2. Open the app and click the **Settings** icon in the sidebar.
-3. Paste your key and click **Save Settings**.
+D-Bolt-AI does not use `.env` files. The API key is entered and stored entirely inside the browser.
 
-The key is stored entirely in your browser's localStorage. It is only ever sent directly to OpenRouter — never to any other server.
+1. Open the running app and click the **Settings** icon (⚙) in the sidebar or top navigation.
+2. Paste your OpenRouter API key into the **API Key** field.
+3. Click **Save Settings**.
 
-## How It Works
+The key is stored in `localStorage` under `d-bolt-ai-storage`. It is sent only to `https://openrouter.ai` in the `Authorization` header — never to any other server.
 
-### Image Analysis Flow
+To use a specific model, select it from the **Model** dropdown in Settings. Temperature, max tokens, and the system prompt are also configurable there.
 
-1. Scroll to the **Image Analysis** section on the landing page.
-2. Drag and drop an image onto the drop zone, or click it to open the file picker.
-3. A preview of your image appears inside the drop zone.
-4. Click **Analyze Image** — the AI (GPT-4o) begins streaming its analysis in real time.
-5. Once the full response appears, click the **Copy** button (clipboard icon) in the result header to copy the analysis text to your clipboard. The button briefly shows **Copied!** to confirm.
-6. To cancel mid-stream, click **Stop Analysis**. To start fresh, click the × button to remove the image.
+---
 
-> The image is converted to a base64 data URL in the browser and sent directly to OpenRouter — it is never stored on any server.
+## Project Structure
 
-### Streaming Chat Message Flow
+```
+d-bolt-ai/
+├── public/
+│   ├── docs/
+│   │   └── image-analysis-preview.png   # Image Analysis feature screenshot
+│   ├── favicon.svg
+│   └── robots.txt
+├── src/
+│   ├── components/
+│   │   ├── ChatArea.tsx          # Core chat: streaming, abort, export, regenerate
+│   │   ├── ChatMessage.tsx       # Per-message UI: copy, edit, regenerate
+│   │   ├── ChatInput.tsx         # Auto-expanding input with send/stop handling
+│   │   ├── Sidebar.tsx           # Session list + new-chat management
+│   │   ├── Settings.tsx          # API key, model, temperature, system prompt
+│   │   ├── SuggestedPrompts.tsx  # Empty-state starter prompts
+│   │   ├── TypingIndicator.tsx   # Animated indicator during AI generation
+│   │   ├── LightningBolt.tsx     # Branded SVG logo component
+│   │   ├── Navbar.tsx            # Top navigation bar
+│   │   └── ErrorBoundary.tsx     # Component-level error catching
+│   ├── pages/
+│   │   ├── Landing.tsx           # Landing page + ImageAnalysisSection
+│   │   └── Landing.css           # Landing styles: drop zone, result box, copy button
+│   ├── layouts/
+│   │   ├── AppLayout.tsx         # Shared page layout wrapper
+│   │   └── AppLayout.css
+│   ├── store/
+│   │   └── chatStore.ts          # Zustand store with persist middleware
+│   ├── types/
+│   │   └── index.ts              # Message, ChatSession, AppSettings interfaces
+│   ├── utils/
+│   │   └── ai.ts                 # streamCompletion() + analyzeImageStream()
+│   ├── App.tsx                   # Root: router, layout, settings modal
+│   ├── App.css                   # Global component styles
+│   ├── index.css                 # CSS variables, dark theme, scrollbar
+│   └── main.tsx                  # React entry point
+├── vite.config.ts
+├── tsconfig.json
+└── package.json
+```
 
-1. User types a message and presses Enter.
-2. The message is added to the active session in the Zustand store.
-3. All messages in the session are sent to the OpenRouter API.
-4. The response streams in token-by-token, with the UI updating live.
-5. On completion, the assistant message is saved to the store (and persisted to localStorage).
+---
 
-### State Persistence
+## Environment Variables
 
-Zustand's persist middleware serializes the following to `localStorage` under the key `d-bolt-ai-storage`:
+D-Bolt-AI is a fully client-side application. There are **no server-side environment variables** required to run it.
 
-| Field             | Description                                          |
-|-------------------|------------------------------------------------------|
-| `sessions`        | All conversations with their full message history    |
-| `activeSessionId` | Which conversation is currently displayed            |
-| `settings`        | API key, model, temperature, max tokens, system prompt |
+| Variable | Where Set | Purpose |
+|----------|-----------|---------|
+| OpenRouter API Key | In-app Settings panel | Authenticates all AI API requests |
 
-UI-only state (`isSettingsOpen`, `isSidebarOpen`) is intentionally not persisted.
+Everything is stored in the browser's `localStorage` — the app ships with zero backend infrastructure.
 
-## Production Readiness
+---
 
-- Clean TypeScript build with no errors (`npm run build`)
-- Zustand persist middleware for durable state across reloads
-- Graceful streaming abort handling
-- Environment-safe Vite configuration (host `0.0.0.0`, port `5000`, `allowedHosts: all`)
+## Roadmap
 
-## Contribution Guidelines
+- [ ] Support additional vision-capable models (Gemini Pro Vision, Claude 3.5 with vision)
+- [ ] Inline image attachments inside the chat interface
+- [ ] Conversation search across all sessions
+- [ ] Keyboard shortcuts for common actions
+- [ ] System prompt library / preset templates
+- [ ] Dark/light theme toggle
+- [ ] One-click deploy to Vercel / Netlify
 
-- **Branch strategy**: All work on feature branches (`feature/description`), merged to `main` via Pull Request.
-- **Main branch**: Protected — no direct commits.
-- **TypeScript**: Avoid `any`; keep all interfaces in `src/types/index.ts`.
-- **Styling**: Use CSS variables; maintain the dark theme throughout.
-- **Components**: Keep components focused and single-responsibility.
+---
 
-## Known Issues
+## Contributing
 
-- Clearing browser data will erase all chat history (stored in localStorage).
-- Some OpenRouter models may have rate limits or require credits — check your account if you see auth errors.
-- Streaming requires a stable connection and JavaScript enabled.
+Contributions are welcome. Please follow these conventions:
+
+- **Branching** — Use `feature/your-feature-name` branches; open a pull request to `main`
+- **TypeScript** — No `any`; all shared interfaces go in `src/types/index.ts`
+- **Styling** — Use existing CSS variables; never hardcode theme colors
+- **Components** — Keep components single-responsibility; co-locate their CSS file
+- **Commits** — Use conventional commit style (`feat:`, `fix:`, `chore:`, `docs:`)
+
+---
+
+## Known Limitations
+
+- Chat history is stored in `localStorage` — clearing browser data will erase all sessions
+- Image Analysis is limited to images under 10 MB
+- OpenRouter models may have rate limits or require account credits
+- Streaming requires a stable network connection and JavaScript enabled in the browser
+
+---
 
 ## License
 
-MIT License. See the LICENSE file for details.
+MIT License. See [LICENSE](LICENSE) for details.
