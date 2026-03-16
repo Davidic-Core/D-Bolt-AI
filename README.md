@@ -10,6 +10,14 @@ D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript +
 
 ## Features
 
+### Image Analysis _(Landing Page)_
+- **Drag & Drop Upload** — Drag an image onto the landing page drop zone or click to browse. Supports PNG, JPG, GIF, and WebP up to 10 MB.
+- **Instant AI Analysis** — Powered by GPT-4o via OpenRouter. Analyzes code screenshots, UI mockups, diagrams, and any visual content.
+- **Streaming Response** — The AI analysis streams in token-by-token, with a live blinking cursor while generating.
+- **Copy to Clipboard** — A **Copy** button in the result header copies the full AI analysis to the clipboard with a brief **Copied!** confirmation.
+- **Stop Analysis** — Cancel an in-progress analysis at any time with the Stop button.
+- **Image Preview** — Uploaded images display inline before submission, with a remove (×) button to clear and start over.
+
 ### Chat Interface
 - **Real-Time Streaming** — Responses stream word-by-word using the OpenRouter API with live UI updates.
 - **Copy Messages** — One-click copy to clipboard for any message (user or assistant).
@@ -34,12 +42,14 @@ D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript +
 
 All models are accessed via [OpenRouter](https://openrouter.ai):
 
-| Provider   | Model              | Notes                                      |
+| Provider   | Model              | Used For                                   |
 |------------|--------------------|--------------------------------------------|
-| OpenAI     | GPT-4o             | Strongest reasoning and code analysis      |
-| OpenAI     | GPT-4o Mini        | Fast, affordable for quick iterations      |
-| Anthropic  | Claude 3.5 Sonnet  | Excellent for detailed code explanations   |
-| Anthropic  | Claude 3 Haiku     | Fast responses for simple tasks            |
+| OpenAI     | GPT-4o             | Chat · **Image analysis (vision)**         |
+| OpenAI     | GPT-4o Mini        | Chat — fast, affordable for quick tasks    |
+| Anthropic  | Claude 3.5 Sonnet  | Chat — detailed code explanations          |
+| Anthropic  | Claude 3 Haiku     | Chat — fast responses for simple tasks     |
+
+> **Note:** The Image Analysis feature always uses **GPT-4o** regardless of the model selected in Settings, because it is the only vision-capable model in the current lineup.
 
 ## Tech Stack
 
@@ -63,12 +73,15 @@ src/
 │   ├── ChatInput.tsx     # Auto-expanding text input with submission handling
 │   ├── Sidebar.tsx       # Session list and new-chat management
 │   └── Settings.tsx      # API key, model, temperature, and system prompt configuration
+├── pages/
+│   ├── Landing.tsx       # Landing page + ImageAnalysisSection (upload, stream, copy)
+│   └── Landing.css       # Landing page styles including drop zone and result box
 ├── store/
 │   └── chatStore.ts      # Zustand store with persist middleware
 ├── types/
 │   └── index.ts          # TypeScript interfaces for messages, sessions, settings
 ├── utils/
-│   └── ai.ts             # OpenRouter API integration with streaming support
+│   └── ai.ts             # OpenRouter API: streamCompletion (chat) + analyzeImageStream (vision)
 ├── App.tsx               # Root layout: sidebar, topbar, chat area, settings modal
 ├── App.css               # All component styles
 ├── index.css             # Global CSS variables, dark theme, scrollbar styles
@@ -103,7 +116,18 @@ The key is stored entirely in your browser's localStorage. It is only ever sent 
 
 ## How It Works
 
-### Streaming Message Flow
+### Image Analysis Flow
+
+1. Scroll to the **Image Analysis** section on the landing page.
+2. Drag and drop an image onto the drop zone, or click it to open the file picker.
+3. A preview of your image appears inside the drop zone.
+4. Click **Analyze Image** — the AI (GPT-4o) begins streaming its analysis in real time.
+5. Once the full response appears, click the **Copy** button (clipboard icon) in the result header to copy the analysis text to your clipboard. The button briefly shows **Copied!** to confirm.
+6. To cancel mid-stream, click **Stop Analysis**. To start fresh, click the × button to remove the image.
+
+> The image is converted to a base64 data URL in the browser and sent directly to OpenRouter — it is never stored on any server.
+
+### Streaming Chat Message Flow
 
 1. User types a message and presses Enter.
 2. The message is added to the active session in the Zustand store.

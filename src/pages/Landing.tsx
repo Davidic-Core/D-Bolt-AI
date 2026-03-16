@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiCode, FiSave, FiGrid, FiZap, FiUpload, FiX, FiImage } from 'react-icons/fi'
+import { FiCode, FiSave, FiGrid, FiZap, FiUpload, FiX, FiImage, FiCopy, FiCheck } from 'react-icons/fi'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import LightningBolt from '../components/LightningBolt'
@@ -20,6 +20,7 @@ function ImageAnalysisSection() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [result, setResult] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [isCopied, setIsCopied] = useState(false)
 
   const loadFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -107,6 +108,13 @@ function ImageAnalysisSection() {
     setIsAnalyzing(false)
   }
 
+  const handleCopy = async () => {
+    if (!result) return
+    await navigator.clipboard.writeText(result)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
+
   return (
     <section className="image-analysis">
       <div className="image-analysis-inner">
@@ -191,6 +199,16 @@ function ImageAnalysisSection() {
             <div className="analysis-result-header">
               <FiZap size={15} />
               <span>AI Analysis</span>
+              <button
+                className={`result-copy-btn${isCopied ? ' copied' : ''}`}
+                onClick={handleCopy}
+                disabled={!result || isAnalyzing}
+                aria-label={isCopied ? 'Copied!' : 'Copy analysis to clipboard'}
+                title={isCopied ? 'Copied!' : 'Copy to clipboard'}
+              >
+                {isCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+                <span>{isCopied ? 'Copied!' : 'Copy'}</span>
+              </button>
             </div>
             <div className="analysis-result-body">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
