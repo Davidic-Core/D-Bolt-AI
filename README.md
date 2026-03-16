@@ -8,6 +8,17 @@ D-Bolt-AI is a modern AI chat web application built with React 18 + TypeScript +
 ### Chat Interface
 ![D-Bolt-AI Chat UI](docs/images/chat-ui.png)
 
+## Image Analysis Feature
+
+![D-Bolt-AI Image Analysis](public/docs/image-analysis-preview.png)
+
+Upload any image directly on the landing page and get an instant AI-powered analysis streamed in real time.
+
+- **Drag & drop or click to browse** — supports PNG, JPG, GIF, and WebP up to 10 MB
+- **AI analysis via GPT-4o vision** — identifies code, diagrams, UI layouts, and visual content with detailed explanations
+- **Responses stream in real time** — output appears token-by-token with a live cursor as the AI generates
+- **Copy to clipboard in one click** — the **Copy** button in the result header copies the full analysis; shows a brief **Copied!** confirmation
+
 ## Features
 
 ### Image Analysis _(Landing Page)_
