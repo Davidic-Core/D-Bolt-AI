@@ -38,14 +38,25 @@ App.tsx
 └── Settings.tsx         — Modal: API key, model, temperature, system prompt
 ```
 
+### Component Map (Landing page)
+
+```
+Landing.tsx
+├── ImageAnalysisSection  — Self-contained component: drag-and-drop upload,
+│                           base64 conversion, streaming vision analysis, result display
+└── (Hero / Features / Models / CTA sections — standard marketing layout)
+```
+
 ### Key Files
 
 | File                    | Responsibility                                           |
 |-------------------------|----------------------------------------------------------|
 | `src/App.tsx`           | Root layout; wires sidebar, topbar, chat area, settings  |
 | `src/store/chatStore.ts`| Zustand store — all app state + persist middleware       |
-| `src/utils/ai.ts`       | OpenRouter streaming API call; handles abort controller  |
+| `src/utils/ai.ts`       | OpenRouter streaming: `streamCompletion` (chat) + `analyzeImageStream` (vision) |
 | `src/types/index.ts`    | TypeScript interfaces: Message, Session, Settings        |
+| `src/pages/Landing.tsx` | Landing page + `ImageAnalysisSection` component          |
+| `src/pages/Landing.css` | All landing page styles incl. drop zone + result box     |
 | `src/App.css`           | All component styles                                     |
 | `src/index.css`         | CSS variables, global dark theme, scrollbar styles       |
 
@@ -93,6 +104,18 @@ All AI requests go through `https://openrouter.ai/api/v1/chat/completions` with 
 - **Streaming**: Uses the `ReadableStream` / `fetch` API with `stream: true`. Tokens update the UI in real time.
 - **Abort**: An `AbortController` ref in `ChatArea.tsx` handles the Stop Generation feature.
 - **Error handling**: Network and API errors surface with a user-visible message in the chat area.
+
+### Image Analysis — Vision API (`analyzeImageStream`)
+
+The landing page includes an **Image Analysis** section that sends uploaded images to GPT-4o via OpenRouter's vision endpoint.
+
+- **Function**: `analyzeImageStream(imageDataUrl, apiKey, signal?)` in `src/utils/ai.ts`
+- **Model**: Always uses `openai/gpt-4o` (vision-capable, regardless of user's selected chat model)
+- **Format**: Image is converted to a base64 data URL client-side, then sent as an `image_url` content part alongside a text prompt
+- **Streaming**: Same SSE stream pattern as `streamCompletion` — tokens arrive in real time
+- **State**: All image analysis state (`previewUrl`, `result`, `isAnalyzing`, `error`) is local React state inside `ImageAnalysisSection` — nothing is persisted or added to Zustand
+- **Abort**: Has its own `AbortController` ref; clicking "Stop Analysis" cancels the stream mid-way
+- **Size limit**: 10 MB enforced client-side before any API call
 
 ### API Key
 
@@ -152,6 +175,7 @@ HMR works through the Replit proxy. If styles stop updating, restart the workflo
 - [ ] Streaming works end-to-end with a real API key
 - [ ] Copy, edit, regenerate, and export all function correctly
 - [ ] Settings persist after a page reload
+- [ ] Image upload, analysis, and stop button work on the landing page
 - [ ] No console errors in production build preview
 
 ### Publishing on Replit
@@ -172,6 +196,9 @@ HMR works through the Replit proxy. If styles stop updating, restart the workflo
 | Styles not updating | Restart the dev workflow; hard-refresh with Ctrl+Shift+R |
 | Streaming not working | Check the Network tab for the OpenRouter request; verify the API key has credits |
 | Preview pane blank | Ensure the workflow is running on port 5000; check workflow logs for startup errors |
+| Image analysis returns error | Verify your OpenRouter key has GPT-4o access; the vision endpoint requires a vision-capable model |
+| "Image must be under 10 MB" | Compress or resize the image before uploading |
+| Image analysis not streaming | Check browser DevTools Network tab for the `/chat/completions` request and its response |
 
 ---
 
