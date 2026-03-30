@@ -12,7 +12,7 @@ The landing page also includes a standalone **Image Analysis** tool: drop any sc
 
 ---
 
-## Screenshots
+## Interface Preview
 
 ### Landing Page
 ![D-Bolt-AI Landing Page](docs/images/landing-page.png)
