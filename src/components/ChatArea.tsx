@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useChatStore } from '../store/chatStore'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import SuggestedPrompts from './SuggestedPrompts'
 import TypingIndicator from './TypingIndicator'
-import { streamCompletion, generateTitle } from '../utils/ai'
+import { streamCompletion, generateTitle, buildConversationContext } from '../utils/ai'
 import { Message } from '../types'
 import { FiZap, FiDownload, FiRefreshCw } from 'react-icons/fi'
 
@@ -41,7 +41,7 @@ export default function ChatArea() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [session?.messages])
 
-  const runStream = async ({ sessionId, allMessages, assistantId }: StreamRequest) => {
+  const runStream = useCallback(async ({ sessionId, allMessages, assistantId }: StreamRequest) => {
     abortRef.current?.abort()
     abortRef.current = new AbortController()
     setIsStreaming(true)
@@ -67,9 +67,9 @@ export default function ChatArea() {
       setIsStreaming(false)
       abortRef.current = null
     }
-  }
+  }, [settings, updateMessage])
 
-  const handleSend = async (content: string) => {
+  const handleSend = useCallback(async (content: string) => {
     const trimmed = content.trim()
     if (!trimmed || isStreaming) return
 
@@ -101,21 +101,19 @@ export default function ChatArea() {
     }
     addMessage(sessionId!, assistantMessage)
 
-    const allMessages = [
-      ...(currentSession?.messages ?? []),
-      userMessage,
-    ]
+    const rawMessages = [...(currentSession?.messages ?? []), userMessage]
+    const allMessages = buildConversationContext(rawMessages)
 
     const req: StreamRequest = { sessionId: sessionId!, allMessages, assistantId }
     lastRequestRef.current = req
     await runStream(req)
-  }
+  }, [isStreaming, activeSessionId, createSession, addMessage, updateSessionTitle, runStream])
 
-  const handleStop = () => {
+  const handleStop = useCallback(() => {
     abortRef.current?.abort()
-  }
+  }, [])
 
-  const handleRetry = async () => {
+  const handleRetry = useCallback(async () => {
     if (!lastRequestRef.current || isStreaming) return
 
     const { sessionId, allMessages } = lastRequestRef.current
@@ -133,9 +131,9 @@ export default function ChatArea() {
     const req: StreamRequest = { sessionId, allMessages, assistantId }
     lastRequestRef.current = req
     await runStream(req)
-  }
+  }, [isStreaming, addMessage, runStream])
 
-  const handleRegenerateMessage = async (messageId: string) => {
+  const handleRegenerateMessage = useCallback(async (messageId: string) => {
     if (!session || activeSessionId === null || isStreaming) return
 
     const messageIdx = session.messages.findIndex(m => m.id === messageId)
@@ -154,16 +152,17 @@ export default function ChatArea() {
     }
     addMessage(activeSessionId, newAssistantMessage)
 
-    const allMessages = session.messages.slice(0, userMessageIdx + 1)
+    const rawMessages = session.messages.slice(0, userMessageIdx + 1)
+    const allMessages = buildConversationContext(rawMessages)
     const req: StreamRequest = { sessionId: activeSessionId, allMessages, assistantId }
     lastRequestRef.current = req
     await runStream(req)
-  }
+  }, [session, activeSessionId, isStreaming, addMessage, runStream])
 
-  const handleEditMessage = (messageId: string, newContent: string) => {
+  const handleEditMessage = useCallback((messageId: string, newContent: string) => {
     if (!session || activeSessionId === null) return
     updateMessage(activeSessionId, messageId, newContent, false)
-  }
+  }, [session, activeSessionId, updateMessage])
 
   const handleExportChat = (format: 'json' | 'txt') => {
     if (!session) return
@@ -219,6 +218,8 @@ export default function ChatArea() {
     )
   }
 
+  const lastMsgIdx = session.messages.length - 1
+
   return (
     <div className="chat-area">
       <div className="chat-toolbar">
@@ -251,18 +252,26 @@ export default function ChatArea() {
           </div>
         ) : (
           <div className="chat-messages-list">
-            {session.messages.map(message => (
-              <ChatMessage
-                key={message.id}
-                message={message}
-                onRegenerateMessage={
-                  message.role === 'assistant' ? () => handleRegenerateMessage(message.id) : undefined
-                }
-                onEditMessage={
-                  message.role === 'user' ? (newContent) => handleEditMessage(message.id, newContent) : undefined
-                }
-              />
-            ))}
+            {session.messages.map((message, index) => {
+              const isLast = index === lastMsgIdx &&
+                message.role === 'assistant' &&
+                !message.isStreaming
+
+              return (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  isLast={isLast}
+                  onRegenerateMessage={
+                    message.role === 'assistant' ? () => handleRegenerateMessage(message.id) : undefined
+                  }
+                  onEditMessage={
+                    message.role === 'user' ? (newContent) => handleEditMessage(message.id, newContent) : undefined
+                  }
+                  onSuggestion={isLast ? handleSend : undefined}
+                />
+              )
+            })}
             {isStreaming && <TypingIndicator />}
           </div>
         )}
