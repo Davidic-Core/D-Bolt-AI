@@ -19,9 +19,18 @@ export class AIError extends Error {
   }
 }
 
+const MAX_CONTEXT_MESSAGES = 10
+
+export function buildConversationContext(messages: Message[]): Message[] {
+  const complete = messages.filter(m => !m.isStreaming && m.content.trim().length > 0)
+  if (complete.length <= MAX_CONTEXT_MESSAGES) return complete
+  return complete.slice(-MAX_CONTEXT_MESSAGES)
+}
+
 function buildTimeoutSignal(userSignal: AbortSignal | undefined, ms: number): {
   signal: AbortSignal
   cleanup: () => void
+  timedOut: boolean
 } {
   const controller = new AbortController()
   let timedOut = false
@@ -46,7 +55,7 @@ function buildTimeoutSignal(userSignal: AbortSignal | undefined, ms: number): {
     signal: controller.signal,
     cleanup,
     get timedOut() { return timedOut },
-  } as { signal: AbortSignal; cleanup: () => void } & { timedOut: boolean }
+  }
 }
 
 export const AVAILABLE_MODELS = [
@@ -67,12 +76,13 @@ export async function* streamCompletion(
     throw new AIError('auth', 'No API key configured. Please add your OpenRouter API key in Settings.')
   }
 
-  const { signal: combinedSignal, cleanup, timedOut } = buildTimeoutSignal(signal, 60_000) as
-    { signal: AbortSignal; cleanup: () => void; timedOut: boolean }
+  const contextMessages = buildConversationContext(messages)
+
+  const { signal: combinedSignal, cleanup, timedOut } = buildTimeoutSignal(signal, 60_000)
 
   const openRouterMessages: OpenRouterMessage[] = [
     { role: 'system', content: settings.systemPrompt },
-    ...messages.map(m => ({ role: m.role, content: m.content })),
+    ...contextMessages.map(m => ({ role: m.role, content: m.content })),
   ]
 
   let response: Response
@@ -174,8 +184,7 @@ export async function* analyzeImageStream(
     throw new AIError('auth', 'No API key configured. Please add your OpenRouter API key in Settings.')
   }
 
-  const { signal: combinedSignal, cleanup, timedOut } = buildTimeoutSignal(signal, 90_000) as
-    { signal: AbortSignal; cleanup: () => void; timedOut: boolean }
+  const { signal: combinedSignal, cleanup, timedOut } = buildTimeoutSignal(signal, 90_000)
 
   const visionContent: VisionContentPart[] = [
     {

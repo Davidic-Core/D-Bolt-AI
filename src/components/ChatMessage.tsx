@@ -4,14 +4,32 @@ import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Message } from '../types'
-import { FiUser, FiCopy, FiCheck, FiRotateCw, FiEdit2, FiSave, FiX } from 'react-icons/fi'
-import { FiZap } from 'react-icons/fi'
+import { FiUser, FiCopy, FiCheck, FiRotateCw, FiEdit2, FiSave, FiX, FiZap } from 'react-icons/fi'
 
-interface Props {
-  message: Message
-  onCopyMessage?: () => void
-  onRegenerateMessage?: () => void
-  onEditMessage?: (newContent: string) => void
+const RESPONSE_SUGGESTIONS = [
+  'Explain this in more detail',
+  'Add error handling',
+  'Optimize this code',
+  'Add comments',
+  'Convert to TypeScript',
+  'Show me an example',
+]
+
+function detectLanguage(code: string): string {
+  const s = code.trimStart()
+  if (/^<[a-zA-Z]/.test(s) || /<\/[a-zA-Z]+>/.test(s)) return 'html'
+  if (/^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\s/i.test(s)) return 'sql'
+  if (/^(import|from)\s+\w/.test(s) && /def\s+\w+\(|:\s*$/.test(s)) return 'python'
+  if (/^(import|export|const|let|var|function|class|interface|type|async)\b/.test(s)) return 'typescript'
+  if (/^(package|import)\s+\w/.test(s) && /func\s+\w+\(|:=/.test(s)) return 'go'
+  if (/^(use|fn|let\s+mut|impl|struct|enum)\b/.test(s)) return 'rust'
+  if (/^(#include|int\s+main|void\s+\w+\(|std::)/.test(s)) return 'cpp'
+  if (/^(public\s+class|import\s+java\.|@Override)/.test(s)) return 'java'
+  if (/^\s*[\$#]\s/.test(s) || /^(echo|export|source|chmod|grep|awk|sed)\b/.test(s)) return 'bash'
+  if (/^\s*\{[\s\S]*"[\w-]+":\s/.test(s) || /^\[[\s\S]*\]$/.test(s)) return 'json'
+  if (/^(---|\w[\w-]*:)/.test(s)) return 'yaml'
+  if (/^(import|from)\s+\w/.test(s)) return 'javascript'
+  return 'text'
 }
 
 function CodeBlock({ language, value }: { language: string; value: string }) {
@@ -50,11 +68,24 @@ function CodeBlock({ language, value }: { language: string; value: string }) {
   )
 }
 
-export default function ChatMessage({ message, onCopyMessage, onRegenerateMessage, onEditMessage }: Props) {
+interface Props {
+  message: Message
+  isLast?: boolean
+  onCopyMessage?: () => void
+  onRegenerateMessage?: () => void
+  onEditMessage?: (newContent: string) => void
+  onSuggestion?: (prompt: string) => void
+}
+
+function ChatMessage({ message, isLast, onCopyMessage, onRegenerateMessage, onEditMessage, onSuggestion }: Props) {
   const isUser = message.role === 'user'
   const [copied, setCopied] = React.useState(false)
   const [isEditing, setIsEditing] = React.useState(false)
   const [editContent, setEditContent] = React.useState(message.content)
+
+  React.useEffect(() => {
+    if (!isEditing) setEditContent(message.content)
+  }, [message.content, isEditing])
 
   const handleCopyMessage = async () => {
     await navigator.clipboard.writeText(message.content)
@@ -74,6 +105,8 @@ export default function ChatMessage({ message, onCopyMessage, onRegenerateMessag
     setEditContent(message.content)
     setIsEditing(false)
   }
+
+  const showSuggestions = isLast && !isUser && !message.isStreaming && message.content.length > 0 && !!onSuggestion
 
   return (
     <div className={`message ${isUser ? 'message-user' : 'message-assistant'}`}>
@@ -115,25 +148,42 @@ export default function ChatMessage({ message, onCopyMessage, onRegenerateMessag
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                code({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: React.ReactNode }) {
+                code(props) {
+                  const { className, children } = props
+                  const isInline = !className && !String(children).includes('\n')
                   const match = /language-(\w+)/.exec(className || '')
                   const value = String(children).replace(/\n$/, '')
-                  return !inline && match ? (
-                    <CodeBlock language={match[1]} value={value} />
-                  ) : (
-                    <code className="inline-code" {...props}>
-                      {children}
-                    </code>
-                  )
+
+                  if (!isInline) {
+                    const lang = match ? match[1] : detectLanguage(value)
+                    return <CodeBlock language={lang} value={value} />
+                  }
+                  return <code className="inline-code">{children}</code>
                 },
               }}
             >
               {message.content}
             </ReactMarkdown>
-            {message.isStreaming && <span className="cursor-blink">▋</span>}
+            {message.isStreaming && <span className="cursor-blink" aria-hidden="true">▋</span>}
+          </div>
+        )}
+
+        {showSuggestions && (
+          <div className="response-suggestions" aria-label="Quick follow-up actions">
+            {RESPONSE_SUGGESTIONS.slice(0, 4).map((s) => (
+              <button
+                key={s}
+                className="suggestion-chip"
+                onClick={() => onSuggestion!(s)}
+                title={s}
+              >
+                {s}
+              </button>
+            ))}
           </div>
         )}
       </div>
+
       {!isEditing && (
         <div className="message-actions">
           <button
@@ -169,3 +219,14 @@ export default function ChatMessage({ message, onCopyMessage, onRegenerateMessag
     </div>
   )
 }
+
+function messagePropsAreEqual(prev: Props, next: Props): boolean {
+  return (
+    prev.message.id === next.message.id &&
+    prev.message.content === next.message.content &&
+    prev.message.isStreaming === next.message.isStreaming &&
+    prev.isLast === next.isLast
+  )
+}
+
+export default React.memo(ChatMessage, messagePropsAreEqual)

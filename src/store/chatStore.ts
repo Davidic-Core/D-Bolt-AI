@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Message, ChatSession, AppSettings } from '../types'
+import { DEFAULT_SYSTEM_PROMPT } from '../config/systemPrompt'
 
 interface ChatStore {
   sessions: ChatSession[]
@@ -25,7 +26,7 @@ interface ChatStore {
 const DEFAULT_SETTINGS: AppSettings = {
   apiKey: '',
   selectedModel: 'openai/gpt-4o-mini',
-  systemPrompt: 'You are D-Bolt-AI, an expert AI coding assistant. You help developers write, debug, and understand code. Provide clear, well-commented code examples when helpful. Format code in appropriate code blocks with language identifiers.',
+  systemPrompt: DEFAULT_SYSTEM_PROMPT,
   temperature: 0.7,
   maxTokens: 4096,
 }
