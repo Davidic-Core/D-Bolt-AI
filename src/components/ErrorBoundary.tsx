@@ -24,8 +24,11 @@ export default class ErrorBoundary extends React.Component<Props, State> {
     console.error('Error Boundary caught:', error, errorInfo)
   }
 
-  handleReload = () => {
+  handleTryAgain = () => {
     this.setState({ hasError: false, error: null })
+  }
+
+  handleReload = () => {
     window.location.reload()
   }
 
@@ -37,14 +40,19 @@ export default class ErrorBoundary extends React.Component<Props, State> {
             <div className="error-icon">⚠️</div>
             <h1>Something Went Wrong</h1>
             <p className="error-message">
-              We encountered an unexpected error. Please try reloading the application.
+              Something went wrong. Please refresh or try again.
             </p>
-            {process.env.NODE_ENV !== 'production' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <pre className="error-details">{this.state.error.toString()}</pre>
             )}
-            <button className="reload-btn" onClick={this.handleReload}>
-              Reload Application
-            </button>
+            <div className="error-boundary-actions">
+              <button className="try-again-btn" onClick={this.handleTryAgain}>
+                Try Again
+              </button>
+              <button className="reload-btn" onClick={this.handleReload}>
+                Reload Page
+              </button>
+            </div>
           </div>
         </div>
       )

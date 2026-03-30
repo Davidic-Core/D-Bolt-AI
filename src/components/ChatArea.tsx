@@ -6,10 +6,16 @@ import SuggestedPrompts from './SuggestedPrompts'
 import TypingIndicator from './TypingIndicator'
 import { streamCompletion, generateTitle } from '../utils/ai'
 import { Message } from '../types'
-import { FiZap, FiDownload } from 'react-icons/fi'
+import { FiZap, FiDownload, FiRefreshCw } from 'react-icons/fi'
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 11)
+}
+
+interface StreamRequest {
+  sessionId: string
+  allMessages: Message[]
+  assistantId: string
 }
 
 export default function ChatArea() {
@@ -26,6 +32,7 @@ export default function ChatArea() {
   const [isStreaming, setIsStreaming] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const lastRequestRef = useRef<StreamRequest | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const session = getActiveSession()
@@ -34,43 +41,11 @@ export default function ChatArea() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [session?.messages])
 
-  const handleSend = async (content: string) => {
-    let sessionId = activeSessionId
-    if (!sessionId) {
-      sessionId = createSession()
-    }
-
-    setError(null)
-    const userMessage: Message = {
-      id: generateId(),
-      role: 'user',
-      content,
-      timestamp: new Date(),
-    }
-    addMessage(sessionId, userMessage)
-
-    const currentSession = useChatStore.getState().sessions.find(s => s.id === sessionId)
-    if (currentSession?.messages.length === 0 || currentSession?.title === 'New Chat') {
-      updateSessionTitle(sessionId, generateTitle(content))
-    }
-
-    const assistantId = generateId()
-    const assistantMessage: Message = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isStreaming: true,
-    }
-    addMessage(sessionId, assistantMessage)
-
-    const allMessages = [
-      ...(currentSession?.messages ?? []),
-      userMessage,
-    ]
-
+  const runStream = async ({ sessionId, allMessages, assistantId }: StreamRequest) => {
+    abortRef.current?.abort()
     abortRef.current = new AbortController()
     setIsStreaming(true)
+    setError(null)
 
     let fullContent = ''
 
@@ -84,7 +59,7 @@ export default function ChatArea() {
       if (err instanceof Error && err.name === 'AbortError') {
         updateMessage(sessionId, assistantId, fullContent || '*(stopped)*', false)
       } else {
-        const msg = err instanceof Error ? err.message : 'Unknown error occurred'
+        const msg = err instanceof Error ? err.message : 'Unknown error occurred.'
         setError(msg)
         updateMessage(sessionId, assistantId, `*(Error: ${msg})*`, false)
       }
@@ -94,21 +69,80 @@ export default function ChatArea() {
     }
   }
 
+  const handleSend = async (content: string) => {
+    const trimmed = content.trim()
+    if (!trimmed || isStreaming) return
+
+    let sessionId = activeSessionId
+    if (!sessionId) {
+      sessionId = createSession()
+    }
+
+    const userMessage: Message = {
+      id: generateId(),
+      role: 'user',
+      content: trimmed,
+      timestamp: new Date(),
+    }
+    addMessage(sessionId, userMessage)
+
+    const currentSession = useChatStore.getState().sessions.find(s => s.id === sessionId)
+    if (currentSession?.messages.length === 0 || currentSession?.title === 'New Chat') {
+      updateSessionTitle(sessionId!, generateTitle(trimmed))
+    }
+
+    const assistantId = generateId()
+    const assistantMessage: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true,
+    }
+    addMessage(sessionId!, assistantMessage)
+
+    const allMessages = [
+      ...(currentSession?.messages ?? []),
+      userMessage,
+    ]
+
+    const req: StreamRequest = { sessionId: sessionId!, allMessages, assistantId }
+    lastRequestRef.current = req
+    await runStream(req)
+  }
+
   const handleStop = () => {
     abortRef.current?.abort()
   }
 
+  const handleRetry = async () => {
+    if (!lastRequestRef.current || isStreaming) return
+
+    const { sessionId, allMessages } = lastRequestRef.current
+
+    const assistantId = generateId()
+    const retryMessage: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true,
+    }
+    addMessage(sessionId, retryMessage)
+
+    const req: StreamRequest = { sessionId, allMessages, assistantId }
+    lastRequestRef.current = req
+    await runStream(req)
+  }
+
   const handleRegenerateMessage = async (messageId: string) => {
-    if (!session || activeSessionId === null) return
+    if (!session || activeSessionId === null || isStreaming) return
 
     const messageIdx = session.messages.findIndex(m => m.id === messageId)
     if (messageIdx < 0) return
 
     const userMessageIdx = messageIdx - 1
     if (userMessageIdx < 0 || session.messages[userMessageIdx].role !== 'user') return
-
-    const userContent = session.messages[userMessageIdx].content
-    setError(null)
 
     const assistantId = generateId()
     const newAssistantMessage: Message = {
@@ -121,30 +155,9 @@ export default function ChatArea() {
     addMessage(activeSessionId, newAssistantMessage)
 
     const allMessages = session.messages.slice(0, userMessageIdx + 1)
-
-    abortRef.current = new AbortController()
-    setIsStreaming(true)
-
-    let fullContent = ''
-
-    try {
-      for await (const chunk of streamCompletion(allMessages, settings, abortRef.current.signal)) {
-        fullContent += chunk
-        updateMessage(activeSessionId, assistantId, fullContent, true)
-      }
-      updateMessage(activeSessionId, assistantId, fullContent, false)
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        updateMessage(activeSessionId, assistantId, fullContent || '*(stopped)*', false)
-      } else {
-        const msg = err instanceof Error ? err.message : 'Unknown error occurred'
-        setError(msg)
-        updateMessage(activeSessionId, assistantId, `*(Error: ${msg})*`, false)
-      }
-    } finally {
-      setIsStreaming(false)
-      abortRef.current = null
-    }
+    const req: StreamRequest = { sessionId: activeSessionId, allMessages, assistantId }
+    lastRequestRef.current = req
+    await runStream(req)
   }
 
   const handleEditMessage = (messageId: string, newContent: string) => {
@@ -255,7 +268,16 @@ export default function ChatArea() {
         )}
         {error && (
           <div className="error-banner">
-            <strong>Error:</strong> {error}
+            <span><strong>Error:</strong> {error}</span>
+            <button
+              className="retry-btn"
+              onClick={handleRetry}
+              disabled={isStreaming}
+              title="Retry last request"
+            >
+              <FiRefreshCw size={13} />
+              Retry
+            </button>
           </div>
         )}
         <div ref={bottomRef} />

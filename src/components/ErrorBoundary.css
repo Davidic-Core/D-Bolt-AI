@@ -49,6 +49,31 @@
   margin: 8px 0;
 }
 
+.error-boundary-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.try-again-btn {
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.try-again-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
 .reload-btn {
   padding: 10px 24px;
   background: var(--accent);
@@ -59,7 +84,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  margin-top: 8px;
 }
 
 .reload-btn:hover {

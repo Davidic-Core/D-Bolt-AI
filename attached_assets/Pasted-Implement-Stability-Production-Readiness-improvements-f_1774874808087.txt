@@ -1,0 +1,124 @@
+Implement Stability & Production Readiness improvements for D-Bolt-AI.
+
+IMPORTANT:
+- Do NOT redesign the UI.
+- Do NOT remove existing features.
+- Do NOT change working chat or image analysis behavior.
+- Only ADD stability, safety, and production protections.
+- Preserve all current functionality.
+
+GOAL:
+Make the application resilient, production-safe, and fault tolerant.
+
+--------------------------------------------------
+1. CREATE GLOBAL ERROR BOUNDARY
+--------------------------------------------------
+
+Create a reusable React ErrorBoundary component that:
+
+- Catches runtime React errors
+- Prevents the entire app from crashing
+- Shows a clean fallback UI message:
+
+"Something went wrong. Please refresh or try again."
+
+Wrap the main app layout with this ErrorBoundary.
+
+--------------------------------------------------
+2. IMPROVE API ERROR HANDLING
+--------------------------------------------------
+
+Inside:
+src/utils/ai.ts
+
+Add proper error handling:
+
+- Catch network failures
+- Handle invalid API responses
+- Handle missing API key
+- Prevent stream crashes
+
+Return structured errors:
+
+{
+  type: "network" | "api" | "timeout",
+  message: string
+}
+
+Streaming must fail gracefully without breaking UI.
+
+--------------------------------------------------
+3. ADD REQUEST TIMEOUT PROTECTION
+--------------------------------------------------
+
+Use AbortController:
+
+- Chat requests timeout after 60 seconds
+- Image analysis requests timeout after 90 seconds
+
+If timeout occurs:
+- Stop streaming safely
+- Show message:
+  "Request timed out. Please try again."
+
+--------------------------------------------------
+4. SAFE INPUT VALIDATION
+--------------------------------------------------
+
+Inside ChatInput:
+
+- Prevent empty messages
+- Prevent whitespace-only prompts
+- Trim input automatically
+- Disable send button while streaming
+
+--------------------------------------------------
+5. FAILURE + RETRY SUPPORT
+--------------------------------------------------
+
+If an AI request fails:
+
+- Show inline error message in chat
+- Add a "Retry" button
+- Retry resends last request
+- Do NOT reload page
+
+--------------------------------------------------
+6. STREAMING SAFETY
+--------------------------------------------------
+
+Ensure:
+
+- Only one active stream at a time
+- Abort previous stream when new request starts
+- Prevent duplicate responses
+
+--------------------------------------------------
+7. CONSISTENT LOADING STATES
+--------------------------------------------------
+
+Add loading indicators for:
+
+- Chat streaming
+- Image analysis processing
+
+Disable actions while processing.
+
+--------------------------------------------------
+VERIFICATION REQUIRED
+--------------------------------------------------
+
+After implementation confirm:
+
+✓ npm run dev works
+✓ npm run build passes
+✓ No TypeScript errors
+✓ Chat streaming still works
+✓ Image analysis still works
+✓ No UI regression
+✓ App survives API/network failures
+
+Provide a summary listing:
+- Files created
+- Files modified
+- Stability improvements added

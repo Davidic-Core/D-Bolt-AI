@@ -9,12 +9,53 @@ type VisionContentPart =
   | { type: 'text'; text: string }
   | { type: 'image_url'; image_url: { url: string; detail: 'auto' } }
 
+export class AIError extends Error {
+  constructor(
+    public readonly type: 'network' | 'api' | 'timeout' | 'auth',
+    message: string
+  ) {
+    super(message)
+    this.name = 'AIError'
+  }
+}
+
+function buildTimeoutSignal(userSignal: AbortSignal | undefined, ms: number): {
+  signal: AbortSignal
+  cleanup: () => void
+} {
+  const controller = new AbortController()
+  let timedOut = false
+
+  const timeoutId = setTimeout(() => {
+    timedOut = true
+    controller.abort()
+  }, ms)
+
+  const onUserAbort = () => {
+    clearTimeout(timeoutId)
+    controller.abort()
+  }
+  userSignal?.addEventListener('abort', onUserAbort, { once: true })
+
+  const cleanup = () => {
+    clearTimeout(timeoutId)
+    userSignal?.removeEventListener('abort', onUserAbort)
+  }
+
+  return {
+    signal: controller.signal,
+    cleanup,
+    get timedOut() { return timedOut },
+  } as { signal: AbortSignal; cleanup: () => void } & { timedOut: boolean }
+}
+
 export const AVAILABLE_MODELS = [
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', description: 'Fast and affordable' },
   { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'OpenAI', description: 'Most capable OpenAI model' },
   { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'Anthropic', description: 'Excellent coding assistant' },
   { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku', provider: 'Anthropic', description: 'Fast and efficient' },
 ]
+
 export async function* streamCompletion(
   messages: Message[],
   settings: AppSettings,
@@ -23,61 +64,98 @@ export async function* streamCompletion(
   const apiKey = settings.apiKey?.trim()
 
   if (!apiKey) {
-    throw new Error('No API key configured. Please add your OpenRouter API key in Settings.')
+    throw new AIError('auth', 'No API key configured. Please add your OpenRouter API key in Settings.')
   }
+
+  const { signal: combinedSignal, cleanup, timedOut } = buildTimeoutSignal(signal, 60_000) as
+    { signal: AbortSignal; cleanup: () => void; timedOut: boolean }
 
   const openRouterMessages: OpenRouterMessage[] = [
     { role: 'system', content: settings.systemPrompt },
     ...messages.map(m => ({ role: m.role, content: m.content })),
   ]
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'D-Bolt-AI',
-    },
-    body: JSON.stringify({
-      model: settings.selectedModel,
-      messages: openRouterMessages,
-      stream: true,
-      temperature: settings.temperature,
-      max_tokens: settings.maxTokens,
-    }),
-    signal,
-  })
+  let response: Response
+
+  try {
+    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'D-Bolt-AI',
+      },
+      body: JSON.stringify({
+        model: settings.selectedModel,
+        messages: openRouterMessages,
+        stream: true,
+        temperature: settings.temperature,
+        max_tokens: settings.maxTokens,
+      }),
+      signal: combinedSignal,
+    })
+  } catch (err) {
+    cleanup()
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        if (timedOut && !signal?.aborted) {
+          throw new AIError('timeout', 'Request timed out. Please try again.')
+        }
+        throw err
+      }
+      throw new AIError('network', 'Network error. Please check your connection and try again.')
+    }
+    throw new AIError('network', 'Network error occurred.')
+  }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: response.statusText } }))
-    throw new Error(error?.error?.message ?? `API error: ${response.status}`)
+    cleanup()
+    const errorData = await response.json().catch(() => ({ error: { message: response.statusText } }))
+    const message = errorData?.error?.message ?? `API error: ${response.status}`
+    if (response.status === 401 || response.status === 403) {
+      throw new AIError('auth', 'Invalid or expired API key. Please check your OpenRouter API key in Settings.')
+    }
+    throw new AIError('api', message)
   }
 
   const reader = response.body!.getReader()
   const decoder = new TextDecoder()
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
 
-    const chunk = decoder.decode(value)
-    const lines = chunk.split('\n')
+      const chunk = decoder.decode(value)
+      const lines = chunk.split('\n')
 
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6).trim()
-        if (data === '[DONE]') return
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') return
 
-        try {
-          const parsed = JSON.parse(data)
-          const content = parsed.choices?.[0]?.delta?.content
-          if (content) yield content
-        } catch {
-          // skip malformed chunks
+          try {
+            const parsed = JSON.parse(data)
+            const content = parsed.choices?.[0]?.delta?.content
+            if (content) yield content
+          } catch {
+            // skip malformed SSE chunks
+          }
         }
       }
     }
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      if (timedOut && !signal?.aborted) {
+        throw new AIError('timeout', 'Request timed out. Please try again.')
+      }
+      throw err
+    }
+    throw new AIError('network', 'Connection lost during streaming. Please try again.')
+  } finally {
+    cleanup()
+    reader.releaseLock()
   }
 }
 
@@ -93,8 +171,11 @@ export async function* analyzeImageStream(
   signal?: AbortSignal
 ): AsyncGenerator<string> {
   if (!apiKey?.trim()) {
-    throw new Error('No API key configured. Please add your OpenRouter API key in Settings.')
+    throw new AIError('auth', 'No API key configured. Please add your OpenRouter API key in Settings.')
   }
+
+  const { signal: combinedSignal, cleanup, timedOut } = buildTimeoutSignal(signal, 90_000) as
+    { signal: AbortSignal; cleanup: () => void; timedOut: boolean }
 
   const visionContent: VisionContentPart[] = [
     {
@@ -107,57 +188,86 @@ export async function* analyzeImageStream(
     },
   ]
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey.trim()}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'D-Bolt-AI',
-    },
-    body: JSON.stringify({
-      model: 'openai/gpt-4o',
-      messages: [
-        {
-          role: 'user',
-          content: visionContent,
-        },
-      ],
-      stream: true,
-      temperature: 0.7,
-      max_tokens: 2048,
-    }),
-    signal,
-  })
+  let response: Response
+
+  try {
+    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey.trim()}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'D-Bolt-AI',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o',
+        messages: [{ role: 'user', content: visionContent }],
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 2048,
+      }),
+      signal: combinedSignal,
+    })
+  } catch (err) {
+    cleanup()
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        if (timedOut && !signal?.aborted) {
+          throw new AIError('timeout', 'Request timed out. Please try again.')
+        }
+        throw err
+      }
+      throw new AIError('network', 'Network error. Please check your connection and try again.')
+    }
+    throw new AIError('network', 'Network error occurred.')
+  }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: response.statusText } }))
-    throw new Error(error?.error?.message ?? `API error: ${response.status}`)
+    cleanup()
+    const errorData = await response.json().catch(() => ({ error: { message: response.statusText } }))
+    const message = errorData?.error?.message ?? `API error: ${response.status}`
+    if (response.status === 401 || response.status === 403) {
+      throw new AIError('auth', 'Invalid or expired API key. Please check your OpenRouter API key in Settings.')
+    }
+    throw new AIError('api', message)
   }
 
   const reader = response.body!.getReader()
   const decoder = new TextDecoder()
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
 
-    const chunk = decoder.decode(value)
-    const lines = chunk.split('\n')
+      const chunk = decoder.decode(value)
+      const lines = chunk.split('\n')
 
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6).trim()
-        if (data === '[DONE]') return
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') return
 
-        try {
-          const parsed = JSON.parse(data)
-          const content = parsed.choices?.[0]?.delta?.content
-          if (content) yield content
-        } catch {
-          // skip malformed chunks
+          try {
+            const parsed = JSON.parse(data)
+            const content = parsed.choices?.[0]?.delta?.content
+            if (content) yield content
+          } catch {
+            // skip malformed SSE chunks
+          }
         }
       }
     }
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      if (timedOut && !signal?.aborted) {
+        throw new AIError('timeout', 'Request timed out. Please try again.')
+      }
+      throw err
+    }
+    throw new AIError('network', 'Connection lost during streaming. Please try again.')
+  } finally {
+    cleanup()
+    reader.releaseLock()
   }
 }
