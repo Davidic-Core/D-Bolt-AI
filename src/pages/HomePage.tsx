@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm'
 import BoltIcon from '../components/BoltIcon'
 import { useChatStore } from '../store/chatStore'
 import { analyzeImageStream } from '../utils/ai'
-import './Landing.css'
+import './HomePage.css'
 
 function ImageAnalysisSection() {
   const { settings } = useChatStore()
@@ -223,7 +223,7 @@ function ImageAnalysisSection() {
   )
 }
 
-export default function Landing() {
+export default function HomePage() {
   const navigate = useNavigate()
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import AppLayout from './layouts/AppLayout'
 import { useChatStore } from './store/chatStore'
 import './App.css'
 
-const Landing = lazy(() => import('./pages/Landing'))
+const HomePage = lazy(() => import('./pages/HomePage'))
 
 function ChatPage() {
   const { isSettingsOpen, isSidebarOpen, setSidebarOpen } = useChatStore()
@@ -58,7 +58,7 @@ export default function App() {
                 element={
                   <Suspense fallback={<div className="loading-fallback">Loading...</div>}>
                     <AppLayout>
-                      <Landing />
+                      <HomePage />
                     </AppLayout>
                   </Suspense>
                 }
