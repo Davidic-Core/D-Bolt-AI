@@ -17,10 +17,10 @@ The home page also includes a standalone **Image Analysis** tool: drop any scree
 ## Interface Preview
 
 ### Home Page
-![D⚡BOLT Home Page](docs/images/homepage-preview.png)
+![D⚡BOLT Home Page](docs/images/homepage-preview.jpg)
 
 ### Chat Interface
-![D⚡BOLT Chat Interface](docs/images/chat-ui-preview.png)
+![D⚡BOLT Chat Interface](docs/images/chat-ui-preview.jpg)
 
 ---
 
