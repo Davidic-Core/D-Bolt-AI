@@ -1,32 +1,50 @@
-# D-Bolt-AI — Intelligent Coding Assistant
+# D⚡BOLT — AI-Powered Developer Companion
 
-> A modern, developer-focused AI chat application with real-time streaming, multi-model support, and GPT-4o powered image analysis. Built with React 18 + TypeScript + Vite, connected to the world's top AI models through OpenRouter.
+> A premium, developer-focused AI productivity tool with real-time streaming, multi-model support, and GPT-4o powered image analysis. Built with React 18 + TypeScript + Vite, connected to the world's top AI models through OpenRouter.
 
 ---
 
 ## Overview
 
-D-Bolt-AI gives developers an instant, browser-based interface to the best AI coding models available. Chat with GPT-4o, Claude 3.5 Sonnet, and more — with responses that stream word-by-word, conversations that persist across sessions, and a futuristic dark UI designed for focus.
+D⚡BOLT gives developers an instant, browser-based interface to the best AI coding models available. Chat with GPT-4o, Claude 3.5 Sonnet, and more — with responses that stream word-by-word, conversations that persist across sessions, and a futuristic dark UI designed for deep focus and fast iteration.
 
-The landing page also includes a standalone **Image Analysis** tool: drop any screenshot, diagram, or UI mockup and get a detailed, streaming AI breakdown in seconds — no separate tool required.
+More than just a chat app, D⚡BOLT is built as a developer productivity tool: analyze screenshots and diagrams, switch models mid-session, export conversations, and get instant code suggestions — all without leaving the browser.
+
+The home page also includes a standalone **Image Analysis** tool: drop any screenshot, diagram, or UI mockup and get a detailed, streaming AI breakdown in seconds — no separate tool required.
 
 ---
 
 ## Interface Preview
 
-### Landing Page
-![D-Bolt-AI Landing Page](docs/images/landing-page.png)
+### Home Page
+![D⚡BOLT Home Page](docs/images/landing-page.png)
 
 ### Chat Interface
-![D-Bolt-AI Chat UI](docs/images/chat-ui.png)
+![D⚡BOLT Chat UI](docs/images/chat-ui.png)
+
+---
+
+## 🏠 Home Page
+
+The D⚡BOLT home page is a full-screen, modern hero interface designed to make a strong first impression and get developers into the tool immediately.
+
+- **Full-screen hero layout** — Vertically and horizontally centered content that fills the entire viewport
+- **D⚡BOLT branding** — Large gradient title (purple → violet → cyan) with bold 800-weight typography
+- **Animated bolt icon** — A custom SVG lightning bolt component (`BoltIcon`) with glow pulse and electric flicker animations
+- **Gradient background** — Deep dark theme with layered radial gradients (black → purple → dark blue) for a premium feel
+- **Call-to-action buttons** — Two clearly differentiated actions:
+  - **Start Building** — Filled gradient button (purple → cyan) navigating to the chat interface
+  - **Open Chat** — Outlined button with hover fill effect, also routing to `/chat`
+- **Welcome copy** — Concise, developer-focused tagline: *"Build faster. Think smarter. Ship instantly."*
+- **Responsive layout** — Buttons stack vertically on mobile; font sizes scale across breakpoints
 
 ---
 
 ## Image Analysis Feature
 
-![D-Bolt-AI Image Analysis](public/docs/image-analysis-preview.png)
+![D⚡BOLT Image Analysis](public/docs/image-analysis-preview.png)
 
-Instantly analyze any image using GPT-4o's vision capabilities, directly from the landing page — no chat session required.
+Instantly analyze any image using GPT-4o's vision capabilities, directly from the home page — no chat session required.
 
 | Step | Action |
 |------|--------|
@@ -144,7 +162,7 @@ npm run preview    # Serve the production build locally
 
 ### OpenRouter API Key
 
-D-Bolt-AI does not use `.env` files. The API key is entered and stored entirely inside the browser.
+D⚡BOLT does not use `.env` files. The API key is entered and stored entirely inside the browser.
 
 1. Open the running app and click the **Settings** icon (⚙) in the sidebar or top navigation.
 2. Paste your OpenRouter API key into the **API Key** field.
@@ -174,12 +192,13 @@ d-bolt-ai/
 │   │   ├── Settings.tsx          # API key, model, temperature, system prompt
 │   │   ├── SuggestedPrompts.tsx  # Empty-state starter prompts
 │   │   ├── TypingIndicator.tsx   # Animated indicator during AI generation
-│   │   ├── LightningBolt.tsx     # Branded SVG logo component
+│   │   ├── LightningBolt.tsx     # Core animated SVG bolt (glow + flicker)
+│   │   ├── BoltIcon.tsx          # Reusable bolt icon wrapper used on Home Page
 │   │   ├── Navbar.tsx            # Top navigation bar
 │   │   └── ErrorBoundary.tsx     # Component-level error catching
 │   ├── pages/
-│   │   ├── Landing.tsx           # Landing page + ImageAnalysisSection
-│   │   └── Landing.css           # Landing styles: drop zone, result box, copy button
+│   │   ├── HomePage.tsx          # Home page + ImageAnalysisSection
+│   │   └── HomePage.css          # Home page styles: hero, drop zone, result box
 │   ├── layouts/
 │   │   ├── AppLayout.tsx         # Shared page layout wrapper
 │   │   └── AppLayout.css
@@ -202,7 +221,7 @@ d-bolt-ai/
 
 ## Environment Variables
 
-D-Bolt-AI is a fully client-side application. There are **no server-side environment variables** required to run it.
+D⚡BOLT is a fully client-side application. There are **no server-side environment variables** required to run it.
 
 | Variable | Where Set | Purpose |
 |----------|-----------|---------|
