@@ -1,4 +1,6 @@
-# D⚡BOLT — AI-Powered Developer Companion
+# D⚡BOLT — AI-Powered Coding & Developer Productivity Engine
+
+> Build faster. Think smarter. Ship instantly.
 
 > A premium, developer-focused AI productivity tool with real-time streaming, multi-model support, and GPT-4o powered image analysis. Built with React 18 + TypeScript + Vite, connected to the world's top AI models through OpenRouter.
 
@@ -14,7 +16,23 @@ The home page also includes a standalone **Image Analysis** tool: drop any scree
 
 ---
 
+## ⚡ Why D⚡BOLT?
+
+D⚡BOLT is built for developers who want speed, flexibility, and control when working with AI.
+
+Unlike traditional AI chat tools, D⚡BOLT focuses on:
+- Real-time streaming responses for faster iteration
+- Multi-model flexibility via OpenRouter
+- Built-in image analysis for debugging and UI breakdowns
+- Persistent sessions and developer-focused workflows
+
+It's not just AI chat — it's a development accelerator.
+
+---
+
 ## Interface Preview
+
+A quick look at the D⚡BOLT experience — from the entry Home Page to the real-time AI chat interface.
 
 ### Home Page
 ![D⚡BOLT Home Page](docs/images/homepage-preview.jpg)
@@ -42,7 +60,7 @@ The D⚡BOLT home page is a full-screen, modern hero interface designed to make 
 
 ## Image Analysis Feature
 
-![D⚡BOLT Image Analysis](public/docs/image-analysis-preview.png)
+![D⚡BOLT Image Analysis](docs/images/image-analysis-preview.png)
 
 Instantly analyze any image using GPT-4o's vision capabilities, directly from the home page — no chat session required.
 
