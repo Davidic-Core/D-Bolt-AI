@@ -27,7 +27,7 @@ export default function Navbar() {
       <div className="navbar-left">
         <button className="navbar-logo" onClick={() => navigate('/')}>
           <FiZap size={20} />
-          <span>D-Bolt-AI</span>
+          <span>D⚡BOLT</span>
         </button>
       </div>
 
