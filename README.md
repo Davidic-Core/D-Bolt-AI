@@ -196,10 +196,12 @@ To use a specific model, select it from the **Model** dropdown in Settings. Temp
 
 ```
 d-bolt-ai/
+├── docs/
+│   └── images/
+│       ├── homepage-preview.jpg         # Home page screenshot
+│       ├── chat-ui-preview.jpg          # Chat interface screenshot
+│       └── image-analysis-preview.png  # Image Analysis feature screenshot
 ├── public/
-│   ├── docs/
-│   │   └── image-analysis-preview.png   # Image Analysis feature screenshot
-│   ├── favicon.svg
 │   └── robots.txt
 ├── src/
 │   ├── components/
