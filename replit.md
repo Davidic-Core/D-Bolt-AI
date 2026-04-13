@@ -1,6 +1,6 @@
-# D-Bolt-AI — Replit Developer Guide
+# D⚡BOLT — Replit Developer Guide
 
-Internal reference for developing, debugging, and deploying D-Bolt-AI on Replit. Covers architecture, data flows, state management, deployment, and troubleshooting.
+Internal reference for developing, debugging, and deploying D⚡BOLT on Replit. Covers architecture, data flows, state management, deployment, and troubleshooting.
 
 ---
 
@@ -34,7 +34,7 @@ The app is proxied through Replit's preview pane. Always use the Replit preview 
 
 | Path    | Component    | Description                               |
 |---------|--------------|-------------------------------------------|
-| `/`     | `Landing`    | Marketing page + ImageAnalysisSection     |
+| `/`     | `HomePage`   | Home page + ImageAnalysisSection          |
 | `/chat` | `ChatPage`   | Full chat interface with sidebar          |
 
 ### Component Tree
@@ -43,7 +43,7 @@ The app is proxied through Replit's preview pane. Always use the Replit preview 
 App.tsx  (BrowserRouter + ErrorBoundary)
 ├── Navbar.tsx                    — Top nav: Home/Chat links, Settings icon
 ├── Route "/"
-│   └── AppLayout > Landing.tsx
+│   └── AppLayout > HomePage.tsx
 │       ├── Hero section
 │       ├── Features section
 │       ├── Models section
@@ -64,9 +64,9 @@ App.tsx  (BrowserRouter + ErrorBoundary)
 
 | File                      | Responsibility                                                      |
 |---------------------------|---------------------------------------------------------------------|
-| `src/App.tsx`             | Root layout, routing, lazy-loaded Landing                           |
-| `src/pages/Landing.tsx`   | Marketing page + self-contained `ImageAnalysisSection` component    |
-| `src/pages/Landing.css`   | All landing styles: drop zone, result card, copy button             |
+| `src/App.tsx`             | Root layout, routing, lazy-loaded HomePage                          |
+| `src/pages/HomePage.tsx`  | Home page + self-contained `ImageAnalysisSection` component         |
+| `src/pages/HomePage.css`  | All home page styles: hero, drop zone, result card, copy button     |
 | `src/components/ChatArea.tsx` | Core chat orchestration: send, stream, abort, regenerate, export |
 | `src/store/chatStore.ts`  | Zustand store — all persisted and ephemeral app state               |
 | `src/utils/ai.ts`         | `streamCompletion()` (chat) + `analyzeImageStream()` (vision)       |
@@ -205,7 +205,7 @@ server: {
 - [ ] Chat streaming works end-to-end with a real OpenRouter API key
 - [ ] Copy, edit, regenerate, and export all function correctly
 - [ ] Settings persist after a full page reload (check `d-bolt-ai-storage` in DevTools)
-- [ ] Image upload, analysis, copy, and stop all work on the landing page
+- [ ] Image upload, analysis, copy, and stop all work on the home page
 - [ ] No errors in the browser console on the production build preview
 
 ### Publishing on Replit
@@ -232,7 +232,7 @@ npx serve dist -p 4000 # Test the static bundle locally on port 4000
 2. Add TypeScript interfaces to `src/types/index.ts`.
 3. If persistent state is required, add it to `chatStore.ts` and include it in `partialize`.
 4. Use CSS variables for all colors — never hardcode hex values in component CSS.
-5. Wire into the parent component (`App.tsx`, `ChatArea.tsx`, or `Landing.tsx`).
+5. Wire into the parent component (`App.tsx`, `ChatArea.tsx`, or `HomePage.tsx`).
 
 ### CSS Variable Reference (from `src/index.css`)
 
@@ -277,10 +277,10 @@ Cyan highlights (`#22d3ee`, `rgba(6,182,212,...)`) are used directly where a glo
 
 | Asset | Path | Description |
 |-------|------|-------------|
-| Landing screenshot | `docs/images/landing-page.png` | Hero section + navigation |
-| Chat UI screenshot | `docs/images/chat-ui.png` | Full chat interface with sidebar |
-| Image Analysis preview | `public/docs/image-analysis-preview.png` | Image Analysis section mockup |
-| Favicon | `public/favicon.svg` | SVG favicon served at root |
+| Home page screenshot | `docs/images/homepage-preview.jpg` | Hero section + navigation |
+| Chat UI screenshot | `docs/images/chat-ui-preview.jpg` | Full chat interface with sidebar |
+| Image Analysis preview | `docs/images/image-analysis-preview.png` | Image Analysis section on home page |
+| Public config | `public/robots.txt` | Crawler directives served at root |
 
 ---
 

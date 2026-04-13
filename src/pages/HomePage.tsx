@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { FiCode, FiSave, FiGrid, FiZap, FiUpload, FiX, FiImage, FiCopy, FiCheck } from 'react-icons/fi'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import LightningBolt from '../components/LightningBolt'
+import BoltIcon from '../components/BoltIcon'
 import { useChatStore } from '../store/chatStore'
 import { analyzeImageStream } from '../utils/ai'
-import './Landing.css'
+import './HomePage.css'
 
 function ImageAnalysisSection() {
   const { settings } = useChatStore()
@@ -124,7 +124,7 @@ function ImageAnalysisSection() {
           </div>
           <h2>Image Analysis</h2>
           <p className="image-analysis-subtitle">
-            Upload a screenshot, diagram, UI mockup, or any image — D-Bolt AI will analyze it instantly.
+            Upload a screenshot, diagram, UI mockup, or any image — D⚡BOLT will analyze it instantly.
           </p>
         </div>
 
@@ -223,11 +223,11 @@ function ImageAnalysisSection() {
   )
 }
 
-export default function Landing() {
+export default function HomePage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    document.title = 'D-Bolt-AI — AI Chat Assistant'
+    document.title = 'D⚡BOLT — AI-powered Development Companion'
   }, [])
 
   return (
@@ -237,22 +237,28 @@ export default function Landing() {
         <div className="hero-bg-glow" aria-hidden="true" />
         <div className="hero-content">
           <div className="hero-bolt">
-            <LightningBolt size={200} />
+            <BoltIcon size={200} />
           </div>
-          <h1 className="hero-title">D-Bolt AI</h1>
-          <p className="hero-subtitle">Your Intelligent Coding Assistant</p>
+          <h1 className="hero-title">D⚡BOLT</h1>
+          <p className="hero-welcome">Welcome to D-Bolt ⚡</p>
           <p className="hero-description">
-            Experience the power of advanced AI models for instant code analysis, suggestions, and intelligent conversation.
+            Your AI-powered development companion.<br />
+            Build faster. Think smarter. Ship instantly.
           </p>
-          <button className="hero-cta" onClick={() => navigate('/chat')}>
-            Start Chat
-          </button>
+          <div className="hero-cta-group">
+            <button className="hero-cta hero-cta--filled" onClick={() => navigate('/chat')}>
+              Start Building
+            </button>
+            <button className="hero-cta hero-cta--outline" onClick={() => navigate('/chat')}>
+              Open Chat
+            </button>
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
       <section className="features">
-        <h2>Why Choose D-Bolt AI?</h2>
+        <h2>Why Choose D⚡BOLT?</h2>
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-icon"><FiCode size={32} /></div>
@@ -304,7 +310,7 @@ export default function Landing() {
       {/* CTA Section */}
       <section className="cta">
         <h2>Ready to Code Smarter?</h2>
-        <p>Start your first conversation with D-Bolt AI today.</p>
+        <p>Start your first conversation with D⚡BOLT today.</p>
         <button className="cta-button" onClick={() => navigate('/chat')}>
           Launch Chat
         </button>

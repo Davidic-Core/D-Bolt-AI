@@ -9,13 +9,13 @@ import AppLayout from './layouts/AppLayout'
 import { useChatStore } from './store/chatStore'
 import './App.css'
 
-const Landing = lazy(() => import('./pages/Landing'))
+const HomePage = lazy(() => import('./pages/HomePage'))
 
 function ChatPage() {
   const { isSettingsOpen, isSidebarOpen, setSidebarOpen } = useChatStore()
 
   React.useEffect(() => {
-    document.title = 'Chat • D-Bolt-AI'
+    document.title = 'Chat • D⚡BOLT'
   }, [])
 
   return (
@@ -36,7 +36,7 @@ function ChatPage() {
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <span className="topbar-title">D-Bolt-AI</span>
+          <span className="topbar-title">D⚡BOLT</span>
         </div>
         <ChatArea />
       </div>
@@ -58,7 +58,7 @@ export default function App() {
                 element={
                   <Suspense fallback={<div className="loading-fallback">Loading...</div>}>
                     <AppLayout>
-                      <Landing />
+                      <HomePage />
                     </AppLayout>
                   </Suspense>
                 }
