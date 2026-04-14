@@ -1,6 +1,6 @@
-# D-Bolt-AI User Guide
+# D-Bolt User Guide
 
-A practical guide to getting the most out of D-Bolt-AI — a high-speed, browser-based web coding assistant powered by advanced AI models through OpenRouter.
+A practical guide to getting the most out of D-Bolt — a high-speed, browser-based web coding assistant powered by advanced AI models through OpenRouter.
 
 ---
 
@@ -17,7 +17,7 @@ A practical guide to getting the most out of D-Bolt-AI — a high-speed, browser
 
 ## Introduction
 
-D-Bolt-AI is a high-speed web coding assistant that runs entirely in your browser. It connects directly to industry-leading AI models — including GPT-4o and Claude 3.5 Sonnet — through the OpenRouter API, giving you instant access to intelligent code suggestions, explanations, and debugging help without any server-side infrastructure.
+D-Bolt is a high-speed web coding assistant that runs entirely in your browser. It connects directly to industry-leading AI models — including GPT-4o and Claude 3.5 Sonnet — through the OpenRouter API, giving you instant access to intelligent code suggestions, explanations, and debugging help without any server-side infrastructure.
 
 Key characteristics:
 
@@ -32,7 +32,7 @@ Key characteristics:
 
 ### Adding Your API Key
 
-D-Bolt-AI requires an OpenRouter API key to communicate with AI models. The key is stored locally in your browser and never sent anywhere except directly to OpenRouter.
+D-Bolt requires an OpenRouter API key to communicate with AI models. The key is stored locally in your browser and never sent anywhere except directly to OpenRouter.
 
 **Step 1 — Obtain an API key**
 
@@ -173,7 +173,7 @@ The file downloads immediately to your device.
 
 ## Deployment
 
-D-Bolt-AI is a **fully static web application**. It has no server, no database, and no backend process — every feature runs inside the browser.
+D-Bolt is a **fully static web application**. It has no server, no database, and no backend process — every feature runs inside the browser.
 
 This architecture is intentional and designed for speed:
 

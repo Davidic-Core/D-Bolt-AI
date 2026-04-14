@@ -4,6 +4,7 @@ import { FiCode, FiSave, FiGrid, FiZap, FiUpload, FiX, FiImage, FiCopy, FiCheck 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import BoltIcon from '../components/BoltIcon'
+import UserGuideSection from '../components/UserGuideSection'
 import { useChatStore } from '../store/chatStore'
 import { analyzeImageStream } from '../utils/ai'
 import './HomePage.css'
@@ -315,6 +316,9 @@ export default function HomePage() {
           Launch Chat
         </button>
       </section>
+
+      {/* User Guide Section */}
+      <UserGuideSection />
     </div>
   )
 }
