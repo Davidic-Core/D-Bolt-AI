@@ -13,12 +13,23 @@ export default function Navbar() {
 
   const handleSettingsClick = () => {
     if (location.pathname === '/chat') {
-      // If on chat page, just toggle the modal
       setSettingsOpen(true)
     } else {
-      // If on other pages, navigate to chat with settings
       navigate('/chat')
       setTimeout(() => setSettingsOpen(true), 100)
+    }
+  }
+
+  const handleGuideClick = () => {
+    const scrollToGuide = () => {
+      const el = document.getElementById('user-guide')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    if (location.pathname === '/') {
+      scrollToGuide()
+    } else {
+      navigate('/')
+      setTimeout(scrollToGuide, 300)
     }
   }
 
@@ -43,6 +54,9 @@ export default function Navbar() {
           onClick={() => navigate('/chat')}
         >
           Chat
+        </a>
+        <a className="nav-link" onClick={handleGuideClick}>
+          Guide
         </a>
       </div>
 
